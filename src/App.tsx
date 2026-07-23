@@ -11,6 +11,8 @@ function App() {
   const [showSplash, setShowSplash] = useState(true);
   const [activeTab, setActiveTab] = useState(1);
 
+  console.log("App rendering, showSplash:", showSplash);
+
   const handleLoadCalc = useCallback(() => {
     setActiveTab(1);
   }, []);
@@ -41,12 +43,24 @@ function App() {
   );
 
   if (showSplash) {
-    return <SplashScreen onFinish={() => setShowSplash(false)} />;
+    return (
+      <div style={{ width: "100%", height: "100dvh" }}>
+        <div style={{position:"fixed", top:0, left:0, right:0, background:"yellow", padding:8, zIndex:99999, textAlign:"center", fontWeight:"bold"}}>
+          DEBUG: App loaded ✓ (splash phase)
+        </div>
+        <SplashScreen onFinish={() => setShowSplash(false)} />
+      </div>
+    );
   }
 
   return (
     <PushPermissionGate>
-      {appContent}
+      <div style={{width:"100%", height:"100dvh"}}>
+        <div style={{position:"fixed", top:0, left:0, right:0, background:"lime", padding:8, zIndex:99999, textAlign:"center", fontWeight:"bold"}}>
+          DEBUG: App loaded ✓ (main phase)
+        </div>
+        {appContent}
+      </div>
     </PushPermissionGate>
   );
 }
