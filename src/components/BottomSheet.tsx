@@ -1,4 +1,5 @@
 import { useRef, useState, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 
 interface Props {
   open: boolean;
@@ -10,8 +11,6 @@ export function BottomSheet({ open, onClose, children }: Props) {
   const sheetRef = useRef<HTMLDivElement>(null);
   const startY = useRef(0);
   const [dragOffset, setDragOffset] = useState(0);
-
-  if (!open) return null;
 
   const onTouchStart = (e: React.TouchEvent) => {
     startY.current = e.touches[0].clientY;
@@ -29,7 +28,9 @@ export function BottomSheet({ open, onClose, children }: Props) {
     setDragOffset(0);
   };
 
-  return (
+  if (!open) return null;
+
+  return createPortal(
     <div className="sheet-backdrop" onClick={onClose}>
       <div
         ref={sheetRef}
@@ -45,6 +46,7 @@ export function BottomSheet({ open, onClose, children }: Props) {
           {children}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }

@@ -4,6 +4,7 @@ import { TabBar } from "./components/TabBar";
 import { Calculator } from "./components/Calculator";
 import { HomeTab } from "./components/HomeTab";
 import { HistoryTab } from "./components/HistoryTab";
+import { ToastContainer } from "./components/Toast";
 import { useSwipe } from "./hooks/useSwipe";
 
 function App() {
@@ -19,8 +20,8 @@ function App() {
   }, []);
 
   const { onTouchStart, onTouchEnd } = useSwipe({
-    onSwipeLeft: () => setActiveTab((prev) => Math.min(prev + 1, 2)),
-    onSwipeRight: () => setActiveTab((prev) => Math.max(prev - 1, 0)),
+    onSwipeLeft: () => setActiveTab((prev) => Math.max(prev - 1, 0)),
+    onSwipeRight: () => setActiveTab((prev) => Math.min(prev + 1, 2)),
   });
 
   if (showSplash) {
@@ -40,6 +41,7 @@ function App() {
         </div>
       </div>
       <TabBar activeTab={activeTab} onTabChange={handleTabChange} />
+      <ToastContainer />
     </div>
   );
 }
