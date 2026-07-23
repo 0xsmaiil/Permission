@@ -1,11 +1,11 @@
 import { useState, useMemo, useCallback } from "react";
-import { Calendar, Clock, ArrowClockwise, Lightning, Buildings } from "@phosphor-icons/react";
-import { calculateDates, isHoliday as checkHoliday, type WorkWeek } from "../lib/holidays";
+import { Calendar, Clock, ArrowClockwise, Lightning } from "@phosphor-icons/react";
+import { calculateDates, isHoliday as checkHoliday } from "../lib/holidays";
 import { Results } from "./Results";
 import { BottomSheet } from "./BottomSheet";
 import { DatePicker } from "./DatePicker";
 import { InstallBanner } from "./InstallBanner";
-import { addToHistory, saveReminder, getWorkWeek, setWorkWeek } from "../lib/storage";
+import { addToHistory, saveReminder } from "../lib/storage";
 import { toLocalDateStr } from "../lib/dates";
 import { useT } from "../lib/i18n";
 
@@ -16,7 +16,6 @@ export function Calculator() {
   const [result, setResult] = useState<ReturnType<typeof calculateDates> | null>(null);
   const [error, setError] = useState("");
   const [sheetOpen, setSheetOpen] = useState(false);
-  const [workWeek, setWorkWeekState] = useState<WorkWeek>(getWorkWeek);
 
   const today = useMemo(() => new Date().toISOString().split("T")[0], []);
 
@@ -25,12 +24,6 @@ export function Calculator() {
     const d = new Date(departureDate + "T00:00:00");
     return isNaN(d.getTime()) ? null : d;
   }, [departureDate]);
-
-  const handleWorkWeekChange = useCallback((ww: WorkWeek) => {
-    setWorkWeekState(ww);
-    setWorkWeek(ww);
-    setResult(null);
-  }, []);
 
   const handleCalculate = useCallback(() => {
     setError("");
@@ -49,7 +42,7 @@ export function Calculator() {
       return;
     }
 
-    const r = calculateDates(parsedDate, days, workWeek);
+    const r = calculateDates(parsedDate, days);
     setResult(r);
     setSheetOpen(true);
 
@@ -61,7 +54,7 @@ export function Calculator() {
       overlaps: r.overlaps.length,
     });
     saveReminder(toLocalDateStr(r.resumeDate));
-  }, [duration, departureDate, parsedDate, workWeek]);
+  }, [duration, departureDate, parsedDate]);
 
   const handleReset = () => {
     setDuration("");
@@ -111,31 +104,6 @@ export function Calculator() {
             ))}
           </div>
           {error && <p className="error-text">{error}</p>}
-        </div>
-
-        <div className="section">
-          <div className="section-header">
-            <Buildings size={16} weight="duotone" />
-            <span className="section-header-label">{t("calc.workweek.label")}</span>
-          </div>
-          <div className="ww-toggle">
-            <button
-              type="button"
-              className={`ww-btn ${workWeek === "sun-thu" ? "ww-btn-active" : ""}`}
-              onClick={() => handleWorkWeekChange("sun-thu")}
-            >
-              <span className="ww-days">{t("calc.workweek.sun-thu")}</span>
-              <span className="ww-off">{t("calc.workweek.off.sun-thu")}</span>
-            </button>
-            <button
-              type="button"
-              className={`ww-btn ${workWeek === "sat-wed" ? "ww-btn-active" : ""}`}
-              onClick={() => handleWorkWeekChange("sat-wed")}
-            >
-              <span className="ww-days">{t("calc.workweek.sat-wed")}</span>
-              <span className="ww-off">{t("calc.workweek.off.sat-wed")}</span>
-            </button>
-          </div>
         </div>
 
         <div className="section">

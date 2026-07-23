@@ -110,13 +110,6 @@ function getCachedHolidaysForYear(year: number): Holiday[] {
   return all;
 }
 
-export type WorkWeek = "sun-thu" | "sat-wed";
-
-const REST_DAYS: Record<WorkWeek, number[]> = {
-  "sun-thu": [5, 6],
-  "sat-wed": [4, 5],
-};
-
 export function isHoliday(dateStr: string): boolean {
   const [y, m, d] = dateStr.split("-").map(Number);
   if (!y || !m || !d) return false;
@@ -128,21 +121,7 @@ export function isHoliday(dateStr: string): boolean {
   return getCustomHolidays().some((h) => h.date === dateStr);
 }
 
-export function isRestDay(date: Date, workWeek: WorkWeek): boolean {
-  return REST_DAYS[workWeek].includes(date.getDay());
-}
-
-function dateStr(d: Date): string {
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-}
-
-function isHolidayDate(d: Date): boolean {
-  return isHoliday(dateStr(d));
-}
-
-export function calculateDates(departureDate: Date, durationDays: number, workWeek?: WorkWeek) {
-  const ww = workWeek ?? "sun-thu";
-
+export function calculateDates(departureDate: Date, durationDays: number) {
   const returnDate = new Date(departureDate);
   returnDate.setDate(returnDate.getDate() + durationDays - 1);
 
@@ -159,7 +138,6 @@ export function calculateDates(departureDate: Date, durationDays: number, workWe
     }
   }
 
-  // Custom holidays
   for (const h of getCustomHolidays()) {
     const hDate = new Date(h.date + "T00:00:00");
     if (hDate >= departureDate && hDate <= returnDate && !seenHolidays.has(h.date)) {
@@ -170,9 +148,6 @@ export function calculateDates(departureDate: Date, durationDays: number, workWe
 
   const resumeDate = new Date(returnDate);
   resumeDate.setDate(resumeDate.getDate() + 1);
-  while (isRestDay(resumeDate, ww) || isHolidayDate(resumeDate)) {
-    resumeDate.setDate(resumeDate.getDate() + 1);
-  }
 
   return { returnDate, resumeDate, overlaps: holidays };
 }

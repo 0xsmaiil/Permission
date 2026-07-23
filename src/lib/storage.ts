@@ -102,20 +102,6 @@ export function getTotalDaysUsed(): number {
   return getHistory().reduce((sum, r) => sum + r.durationDays, 0);
 }
 
-const WORK_WEEK_KEY = "permission-work-week";
-
-export type WorkWeek = "sun-thu" | "sat-wed";
-
-export function getWorkWeek(): WorkWeek {
-  const v = localStorage.getItem(WORK_WEEK_KEY);
-  if (v === "sat-wed") return "sat-wed";
-  return "sun-thu";
-}
-
-export function setWorkWeek(ww: WorkWeek): void {
-  localStorage.setItem(WORK_WEEK_KEY, ww);
-}
-
 const CUSTOM_HOLIDAY_KEY = "permission-custom-holidays";
 
 export interface CustomHoliday {
