@@ -18,10 +18,6 @@ function createPNG(size) {
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width; x++) {
       const idx = (y * width + x) * channels;
-      const cx = x - width / 2;
-      const cy = y - height / 2;
-      const dist = Math.sqrt(cx * cx + cy * cy);
-      const maxDist = width / 2;
       const corner = Math.min(x, y, width - 1 - x, height - 1 - y);
       const r = Math.min(width, height) * 0.2;
 
@@ -42,11 +38,6 @@ function createPNG(size) {
 
   // Write as raw RGBA for simplicity
   return rawData;
-}
-
-function deflate(data) {
-  const { deflateSync } = await import("zlib");
-  return deflateSync(data, { level: 9 });
 }
 
 import { deflateSync } from "zlib";

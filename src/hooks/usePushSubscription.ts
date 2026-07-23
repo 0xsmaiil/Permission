@@ -80,8 +80,8 @@ export function usePushSubscription() {
 
       const subJson = subscription.toJSON();
       const endpoint = subJson.endpoint!;
-      const p256dh = subJson.keys?.p256dh!;
-      const auth = subJson.keys?.auth!;
+      const p256dh = subJson.keys?.p256dh ?? "";
+      const auth = subJson.keys?.auth ?? "";
 
       const { error: dbError } = await supabase
         .from("push_subscriptions")

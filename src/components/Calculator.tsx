@@ -76,9 +76,11 @@ export function Calculator() {
         <div className="section">
           <div className="section-header">
             <Clock size={16} weight="duotone" />
-            <label>مدة العطلة (بالأيام)</label>
+            <label htmlFor="duration">مدة العطلة (بالأيام)</label>
           </div>
           <input
+            id="duration"
+            name="duration"
             type="number"
             min={1}
             max={90}
@@ -111,9 +113,11 @@ export function Calculator() {
         <div className="section">
           <div className="section-header">
             <Calendar size={16} weight="duotone" />
-            <label>تاريخ الذهاب</label>
+            <label htmlFor="departure-date">تاريخ الذهاب</label>
           </div>
           <input
+            id="departure-date"
+            name="departure-date"
             type="date"
             value={departureDate}
             onChange={(e) => { setDepartureDate(e.target.value); setResult(null); setError(""); }}
