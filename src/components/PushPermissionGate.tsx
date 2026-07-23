@@ -17,6 +17,10 @@ export function PushPermissionGate({ children }: Props) {
     }
   }, [isSubscribed]);
 
+  if (import.meta.env.DEV) {
+    return <>{children}</>;
+  }
+
   const showGate = !resolved && !isSubscribed;
 
   return (

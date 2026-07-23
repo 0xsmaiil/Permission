@@ -60,7 +60,7 @@ export function usePushSubscription() {
       }
 
       const swReadyTimeout = new Promise<never>((_, reject) =>
-        setTimeout(() => reject(new Error("لم يتم تفعيل Service Worker")), 10000),
+        setTimeout(() => reject(new Error("لم يتم تفعيل Service Worker")), 5000),
       );
       const registration = await Promise.race([
         navigator.serviceWorker.ready,
