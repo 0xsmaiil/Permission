@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, Component } from "react";
 import { SplashScreen } from "./components/SplashScreen";
 import { TabBar } from "./components/TabBar";
 import { Calculator } from "./components/Calculator";
@@ -7,11 +7,24 @@ import { HistoryTab } from "./components/HistoryTab";
 import { PushPermissionGate } from "./components/PushPermissionGate";
 import { useSwipe } from "./hooks/useSwipe";
 
+class ErrorBoundary extends Component<{children: React.ReactNode}, {error: Error | null}> {
+  state = { error: null };
+  static getDerivedStateFromError(e: Error) { return { error: e }; }
+  render() {
+    if (this.state.error) {
+      return <div style={{padding:24,textAlign:"center",color:"red"}}>
+        <h2>Error</h2>
+        <pre>{this.state.error.message}</pre>
+        <pre>{this.state.error.stack}</pre>
+      </div>;
+    }
+    return this.props.children;
+  }
+}
+
 function App() {
   const [showSplash, setShowSplash] = useState(true);
   const [activeTab, setActiveTab] = useState(1);
-
-  console.log("App rendering, showSplash:", showSplash);
 
   const handleLoadCalc = useCallback(() => {
     setActiveTab(1);
@@ -43,25 +56,15 @@ function App() {
   );
 
   if (showSplash) {
-    return (
-      <div style={{ width: "100%", height: "100dvh" }}>
-        <div style={{position:"fixed", top:0, left:0, right:0, background:"yellow", padding:8, zIndex:99999, textAlign:"center", fontWeight:"bold"}}>
-          DEBUG: App loaded ✓ (splash phase)
-        </div>
-        <SplashScreen onFinish={() => setShowSplash(false)} />
-      </div>
-    );
+    return <SplashScreen onFinish={() => setShowSplash(false)} />;
   }
 
   return (
-    <PushPermissionGate>
-      <div style={{width:"100%", height:"100dvh"}}>
-        <div style={{position:"fixed", top:0, left:0, right:0, background:"lime", padding:8, zIndex:99999, textAlign:"center", fontWeight:"bold"}}>
-          DEBUG: App loaded ✓ (main phase)
-        </div>
+    <ErrorBoundary>
+      <PushPermissionGate>
         {appContent}
-      </div>
-    </PushPermissionGate>
+      </PushPermissionGate>
+    </ErrorBoundary>
   );
 }
 
