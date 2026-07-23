@@ -143,36 +143,30 @@ function isHolidayDate(d: Date): boolean {
 export function calculateDates(departureDate: Date, durationDays: number, workWeek?: WorkWeek) {
   const ww = workWeek ?? "sun-thu";
 
-  const cursor = new Date(departureDate);
-  let counted = 0;
+  const returnDate = new Date(departureDate);
+  returnDate.setDate(returnDate.getDate() + durationDays - 1);
 
   const holidays: Holiday[] = [];
   const seenHolidays = new Set<string>();
 
-  while (counted < durationDays) {
-    if (isRestDay(cursor, ww) || isHolidayDate(cursor)) {
-      const ds = dateStr(cursor);
-      if (isHolidayDate(cursor) && !seenHolidays.has(ds)) {
-        seenHolidays.add(ds);
-        const hds = dateStr(cursor);
-        const found = getCachedHolidaysForYear(cursor.getFullYear()).filter(
-          (h) => h.date === hds,
-        );
-        for (const f of found) {
-          if (!holidays.some((x) => x.name === f.name && x.date === f.date)) {
-            holidays.push(f);
-          }
-        }
+  for (const holidaysOfYear of [returnDate.getFullYear(), departureDate.getFullYear()]) {
+    for (const h of getCachedHolidaysForYear(holidaysOfYear)) {
+      const hDate = new Date(h.date + "T00:00:00");
+      if (hDate >= departureDate && hDate <= returnDate && !seenHolidays.has(h.date)) {
+        seenHolidays.add(h.date);
+        holidays.push(h);
       }
-    } else {
-      counted++;
-    }
-    if (counted < durationDays) {
-      cursor.setDate(cursor.getDate() + 1);
     }
   }
 
-  const returnDate = new Date(cursor);
+  // Custom holidays
+  for (const h of getCustomHolidays()) {
+    const hDate = new Date(h.date + "T00:00:00");
+    if (hDate >= departureDate && hDate <= returnDate && !seenHolidays.has(h.date)) {
+      seenHolidays.add(h.date);
+      holidays.push({ name: h.name, date: h.date, type: "national" });
+    }
+  }
 
   const resumeDate = new Date(returnDate);
   resumeDate.setDate(resumeDate.getDate() + 1);
