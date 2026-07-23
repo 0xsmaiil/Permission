@@ -1,10 +1,10 @@
 import { useState, useEffect, useCallback } from "react";
 import { format } from "date-fns";
-import { Trash, ArrowLeft, Calculator, Download } from "@phosphor-icons/react";
+import { Trash, ArrowLeft, ArrowRight, Calculator, Download } from "@phosphor-icons/react";
 import { algerianMonths } from "../lib/constants";
 import { getHistory, clearHistory, type CalculationRecord } from "../lib/storage";
 import { toLocalDateStr } from "../lib/dates";
-import { useT, getDateFnsLocale } from "../lib/i18n";
+import { useT, getDateFnsLocale, getLocale } from "../lib/i18n";
 
 interface Props {
   onLoadCalculation: (departure: string, duration: string) => void;
@@ -120,7 +120,7 @@ export function HistoryTab({ onLoadCalculation, onTabChange }: Props) {
               {h.overlaps > 0 && (
                 <span className="history-tab-overlap">+{h.overlaps} {t("history.overlap")}</span>
               )}
-              <ArrowLeft size={16} className="history-tab-arrow" />
+              {getLocale() === "ar" ? <ArrowRight size={16} className="history-tab-arrow" /> : <ArrowLeft size={16} className="history-tab-arrow" />}
             </div>
           );
         })}

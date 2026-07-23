@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import {
   House,
   Calculator,
@@ -9,7 +9,7 @@ import {
   X,
   CalendarBlank,
 } from "@phosphor-icons/react";
-import { useT } from "../lib/i18n";
+import { useT, getLocale } from "../lib/i18n";
 
 const ONBOARDING_KEY = "permission-onboarding";
 
@@ -25,11 +25,24 @@ export function Onboarding() {
   const t = useT();
   const [visible, setVisible] = useState(false);
   const [step, setStep] = useState(0);
+  const panelRef = useRef<HTMLDivElement>(null);
+  const isRTL = getLocale() === "ar";
 
   useEffect(() => {
     const seen = localStorage.getItem(ONBOARDING_KEY);
     if (!seen) setVisible(true);
   }, []);
+
+  useEffect(() => {
+    if (!visible) return;
+    const el = panelRef.current;
+    if (el) el.focus();
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") dismiss();
+    };
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, [visible, step]);
 
   const dismiss = useCallback(() => {
     localStorage.setItem(ONBOARDING_KEY, "1");
@@ -51,7 +64,7 @@ export function Onboarding() {
 
   return (
     <div className="onboarding-backdrop" role="dialog" aria-modal="true" aria-label={t("onboarding.aria")}>
-      <div className="onboarding-panel">
+      <div className="onboarding-panel" tabIndex={-1} ref={panelRef}>
         <button type="button" className="onboarding-skip" onClick={dismiss} aria-label={t("onboarding.skip")}>
           <X size={18} />
         </button>
@@ -69,11 +82,11 @@ export function Onboarding() {
         <div className="onboarding-actions">
           {step > 0 && (
             <button type="button" className="btn btn-outline btn-sm" onClick={prev}>
-              <ArrowRight size={16} /> {t("onboarding.prev")}
+              {isRTL ? <ArrowRight size={16} /> : <ArrowLeft size={16} />} {t("onboarding.prev")}
             </button>
           )}
           <button type="button" className="btn btn-primary btn-sm" onClick={next}>
-            {step < ICONS.length - 1 ? <>{t("onboarding.next")} <ArrowLeft size={16} /></> : t("onboarding.done")}
+            {step < ICONS.length - 1 ? <>{t("onboarding.next")} {isRTL ? <ArrowLeft size={16} /> : <ArrowRight size={16} />}</> : t("onboarding.done")}
           </button>
         </div>
       </div>
