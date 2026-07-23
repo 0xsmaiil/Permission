@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { format } from "date-fns";
 import { ar } from "date-fns/locale";
-import { Trash, ClockCounterClockwise, ArrowLeft, ClipboardText } from "@phosphor-icons/react";
+import { Trash, ArrowLeft, ClipboardText } from "@phosphor-icons/react";
 import { algerianMonths } from "../lib/constants";
 import { getHistory, clearHistory, type CalculationRecord } from "../lib/storage";
 

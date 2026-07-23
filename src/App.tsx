@@ -11,7 +11,7 @@ function App() {
   const [showSplash, setShowSplash] = useState(true);
   const [activeTab, setActiveTab] = useState(1);
 
-  const handleLoadCalc = useCallback((departure: string, duration: string) => {
+  const handleLoadCalc = useCallback(() => {
     setActiveTab(1);
   }, []);
 

@@ -1,9 +1,6 @@
 import { useState, useMemo, useCallback } from "react";
-import { format } from "date-fns";
-import { ar } from "date-fns/locale";
-import { Calendar, Clock, ArrowLeft, ArrowClockwise, Lightning } from "@phosphor-icons/react";
+import { Calendar, Clock, ArrowClockwise, Lightning } from "@phosphor-icons/react";
 import { calculateDates, getHolidaysForYear, type Holiday } from "../lib/holidays";
-import { algerianMonths } from "../lib/constants";
 import { Results } from "./Results";
 import { BottomSheet } from "./BottomSheet";
 import { addToHistory } from "../lib/storage";
