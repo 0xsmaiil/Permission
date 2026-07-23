@@ -32,11 +32,15 @@ export function useInstallPrompt() {
 
   const install = async () => {
     if (!deferredPrompt) return;
-    deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
-    if (outcome === "accepted") {
+    try {
+      await deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === "accepted") {
+        setDeferredPrompt(null);
+        setIsInstalled(true);
+      }
+    } catch {
       setDeferredPrompt(null);
-      setIsInstalled(true);
     }
   };
 

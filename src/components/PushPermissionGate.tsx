@@ -1,6 +1,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { Bell, BellSlash, Warning, Spinner, ShieldCheck } from "@phosphor-icons/react";
 import { usePushSubscription, type PermissionState } from "../hooks/usePushSubscription";
+import { useT } from "../lib/i18n";
 
 interface Props {
   children: ReactNode;
@@ -101,22 +102,23 @@ function GateIcon({ state }: { state: PermissionState }) {
 }
 
 function IdleState({ isSubscribing, onSubscribe }: { isSubscribing: boolean; onSubscribe: () => void }) {
+  const t = useT();
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 16, width: "100%" }}>
       <div>
         <h2 style={{ fontSize: 22, fontWeight: 900, color: "#f1f5f9", marginBottom: 8 }}>
-          تنبيهات التطبيق
+          {t("pushGate.title")}
         </h2>
         <p style={{ fontSize: 13, fontWeight: 700, color: "#64748b", lineHeight: 1.6, margin: 0 }}>
-          فعّل الإشعارات لتلقي تحديثات وإعلانات التطبيق مباشرة على هاتفك.
+          {t("pushGate.desc")}
         </p>
       </div>
 
       <div style={{ display: "flex", flexDirection: "column", gap: 8, width: "100%" }}>
         {[
-          { icon: "🔔", text: "إشعارات فورية من مسؤول التطبيق" },
-          { icon: "🔒", text: "لا حاجة لحساب — مجاني وآمن" },
-          { icon: "📱", text: "تعمل حتى في وضع الخلفية" },
+          { icon: "🔔", text: t("pushGate.feature1") },
+          { icon: "🔒", text: t("pushGate.feature2") },
+          { icon: "📱", text: t("pushGate.feature3") },
         ].map((item) => (
           <div key={item.text} style={{
             display: "flex", alignItems: "center", gap: 10,
@@ -125,7 +127,7 @@ function IdleState({ isSubscribing, onSubscribe }: { isSubscribing: boolean; onS
             border: "1px solid rgba(255,255,255,0.05)",
           }}>
             <span style={{ fontSize: 16 }}>{item.icon}</span>
-            <span style={{ fontSize: 12, fontWeight: 700, color: "#94a3b8", textAlign: "right" }}>
+            <span style={{ fontSize: 12, fontWeight: 700, color: "#94a3b8" }}>
               {item.text}
             </span>
           </div>
@@ -145,33 +147,33 @@ function IdleState({ isSubscribing, onSubscribe }: { isSubscribing: boolean; onS
         }}
       >
         {isSubscribing ? (
-          <><Spinner size={18} className="spin" /> جارٍ التفعيل…</>
+          <><Spinner size={18} className="spin" /> {t("pushGate.subscribing")}</>
         ) : (
-          <><Bell size={18} /> تفعيل الإشعارات</>
+          <><Bell size={18} /> {t("pushGate.subscribe")}</>
         )}
       </button>
 
       <p style={{ fontSize: 10, fontWeight: 700, color: "#475569", margin: 0 }}>
-        هذه الإشعارات ضرورية لاستخدام التطبيق.
+        {t("pushGate.required")}
       </p>
     </div>
   );
 }
 
 function DeniedState({ onRetry }: { onRetry: () => void }) {
+  const t = useT();
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12, width: "100%" }}>
       <h2 style={{ fontSize: 20, fontWeight: 900, color: "#f1f5f9" }}>
-        الإشعارات مرفوضة
+        {t("pushGate.denied.title")}
       </h2>
       <div style={{
         display: "flex", gap: 8, padding: 12, borderRadius: 12,
         background: "rgba(248,113,113,0.1)", border: "1px solid rgba(248,113,113,0.2)",
-        textAlign: "right",
       }}>
         <Warning size={16} color="#f87171" style={{ marginTop: 2, flexShrink: 0 }} />
         <p style={{ fontSize: 12, fontWeight: 700, color: "#fca5a5", margin: 0, lineHeight: 1.6 }}>
-          يرجى تفعيل الإذن يدوياً من إعدادات المتصفح.
+          {t("pushGate.denied.desc")}
         </p>
       </div>
       <button
@@ -184,30 +186,32 @@ function DeniedState({ onRetry }: { onRetry: () => void }) {
           cursor: "pointer",
         }}
       >
-        حاول مجدداً
+        {t("pushGate.denied.retry")}
       </button>
     </div>
   );
 }
 
 function GrantedState() {
+  const t = useT();
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
       <h2 style={{ fontSize: 20, fontWeight: 900, color: "#34d399" }}>
-        تم التفعيل!
+        {t("pushGate.granted.title")}
       </h2>
       <p style={{ fontSize: 13, fontWeight: 700, color: "#64748b" }}>
-        جارٍ فتح التطبيق…
+        {t("pushGate.granted.desc")}
       </p>
     </div>
   );
 }
 
 function ErrorState({ message, onRetry }: { message: string | null; onRetry: () => void }) {
+  const t = useT();
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12, width: "100%" }}>
       <h2 style={{ fontSize: 20, fontWeight: 900, color: "#f1f5f9" }}>
-        حدث خطأ
+        {t("pushGate.error.title")}
       </h2>
       <p style={{ fontSize: 12, fontWeight: 700, color: "#f87171", margin: 0 }}>
         {message}
@@ -222,7 +226,7 @@ function ErrorState({ message, onRetry }: { message: string | null; onRetry: () 
           cursor: "pointer",
         }}
       >
-        إعادة المحاولة
+        {t("pushGate.error.retry")}
       </button>
     </div>
   );

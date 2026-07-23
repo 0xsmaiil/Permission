@@ -24,18 +24,27 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(
       fetch(event.request)
         .then((response) => {
-          const cloned = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, cloned));
+          if (response.ok) {
+            const cloned = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, cloned));
+          }
           return response;
         })
-        .catch(() => caches.match(event.request))
+        .catch(() =>
+          caches.match(event.request).then((cached) => cached || caches.match('/offline.html'))
+        )
     );
     return;
   }
 
   event.respondWith(
     caches.match(event.request)
-      .then((response) => response || fetch(event.request))
+      .then((response) => response || fetch(event.request).catch(() => {
+        if (event.request.destination === 'document') {
+          return caches.match('/offline.html');
+        }
+        return new Response('', { status: 503 });
+      }))
   );
 });
 

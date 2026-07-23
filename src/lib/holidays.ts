@@ -1,3 +1,5 @@
+import { getCustomHolidays } from "./storage";
+
 export interface Holiday {
   name: string;
   date: string;
@@ -93,45 +95,90 @@ function getIslamicHolidaysForYear(gregorianYear: number): Holiday[] {
   return candidates;
 }
 
-function buildIslamicHolidayMap(): Record<number, Holiday[]> {
-  const map: Record<number, Holiday[]> = {};
-  for (let y = 2026; y <= 2050; y++) {
-    map[y] = getIslamicHolidaysForYear(y);
-  }
-  return map;
-}
+const yearCache = new Map<number, Holiday[]>();
 
-const ISLAMIC_HOLIDAY_MAP = buildIslamicHolidayMap();
-
-export function getHolidaysForYear(year: number): Holiday[] {
+function getCachedHolidaysForYear(year: number): Holiday[] {
+  if (yearCache.has(year)) return yearCache.get(year)!;
   const fixed: Holiday[] = FIXED_HOLIDAYS.map((h) => ({
     name: h.name,
     date: `${year}-${String(h.month).padStart(2, "0")}-${String(h.day).padStart(2, "0")}`,
     type: h.type,
   }));
-
-  const religious = ISLAMIC_HOLIDAY_MAP[year] ?? getIslamicHolidaysForYear(year);
-
-  return [...fixed, ...religious];
+  const religious = getIslamicHolidaysForYear(year);
+  const all = [...fixed, ...religious];
+  yearCache.set(year, all);
+  return all;
 }
 
-export function calculateDates(departureDate: Date, durationDays: number) {
-  const returnDate = new Date(departureDate.getTime());
-  returnDate.setDate(returnDate.getDate() + durationDays - 1);
+export type WorkWeek = "sun-thu" | "sat-wed";
 
-  const resumeDate = new Date(returnDate.getTime());
+const REST_DAYS: Record<WorkWeek, number[]> = {
+  "sun-thu": [5, 6],
+  "sat-wed": [4, 5],
+};
+
+export function isHoliday(dateStr: string): boolean {
+  const [y, m, d] = dateStr.split("-").map(Number);
+  if (!y || !m || !d) return false;
+  const holidays = getCachedHolidaysForYear(y);
+  if (holidays.some((h) => {
+    const [hy, hm, hd] = h.date.split("-").map(Number);
+    return hy === y && hm === m && hd === d;
+  })) return true;
+  return getCustomHolidays().some((h) => h.date === dateStr);
+}
+
+export function isRestDay(date: Date, workWeek: WorkWeek): boolean {
+  return REST_DAYS[workWeek].includes(date.getDay());
+}
+
+function dateStr(d: Date): string {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
+function isHolidayDate(d: Date): boolean {
+  return isHoliday(dateStr(d));
+}
+
+export function calculateDates(departureDate: Date, durationDays: number, workWeek?: WorkWeek) {
+  const ww = workWeek ?? "sun-thu";
+
+  const cursor = new Date(departureDate);
+  let counted = 0;
+
+  const holidays: Holiday[] = [];
+  const seenHolidays = new Set<string>();
+
+  while (counted < durationDays) {
+    if (isRestDay(cursor, ww) || isHolidayDate(cursor)) {
+      const ds = dateStr(cursor);
+      if (isHolidayDate(cursor) && !seenHolidays.has(ds)) {
+        seenHolidays.add(ds);
+        const hds = dateStr(cursor);
+        const found = getCachedHolidaysForYear(cursor.getFullYear()).filter(
+          (h) => h.date === hds,
+        );
+        for (const f of found) {
+          if (!holidays.some((x) => x.name === f.name && x.date === f.date)) {
+            holidays.push(f);
+          }
+        }
+      }
+    } else {
+      counted++;
+    }
+    if (counted < durationDays) {
+      cursor.setDate(cursor.getDate() + 1);
+    }
+  }
+
+  const returnDate = new Date(cursor);
+
+  const resumeDate = new Date(returnDate);
   resumeDate.setDate(resumeDate.getDate() + 1);
+  while (isRestDay(resumeDate, ww) || isHolidayDate(resumeDate)) {
+    resumeDate.setDate(resumeDate.getDate() + 1);
+  }
 
-  const year = departureDate.getFullYear();
-  const holidays = getHolidaysForYear(year);
-
-  const overlaps = holidays.filter((h) => {
-    const [y, m, d] = h.date.split("-").map(Number);
-    const hDate = new Date(y, m - 1, d);
-    const dep = new Date(departureDate.getFullYear(), departureDate.getMonth(), departureDate.getDate());
-    const ret = new Date(returnDate.getFullYear(), returnDate.getMonth(), returnDate.getDate());
-    return hDate >= dep && hDate <= ret;
-  });
-
-  return { returnDate, resumeDate, overlaps };
+  return { returnDate, resumeDate, overlaps: holidays };
 }

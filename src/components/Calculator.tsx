@@ -1,16 +1,22 @@
 import { useState, useMemo, useCallback } from "react";
-import { Calendar, Clock, ArrowClockwise, Lightning } from "@phosphor-icons/react";
-import { calculateDates, getHolidaysForYear, type Holiday } from "../lib/holidays";
+import { Calendar, Clock, ArrowClockwise, Lightning, Buildings } from "@phosphor-icons/react";
+import { calculateDates, isHoliday as checkHoliday, type WorkWeek } from "../lib/holidays";
 import { Results } from "./Results";
 import { BottomSheet } from "./BottomSheet";
-import { addToHistory } from "../lib/storage";
+import { DatePicker } from "./DatePicker";
+import { InstallBanner } from "./InstallBanner";
+import { addToHistory, saveReminder, getWorkWeek, setWorkWeek } from "../lib/storage";
+import { toLocalDateStr } from "../lib/dates";
+import { useT } from "../lib/i18n";
 
 export function Calculator() {
+  const t = useT();
   const [duration, setDuration] = useState("");
   const [departureDate, setDepartureDate] = useState("");
   const [result, setResult] = useState<ReturnType<typeof calculateDates> | null>(null);
   const [error, setError] = useState("");
   const [sheetOpen, setSheetOpen] = useState(false);
+  const [workWeek, setWorkWeekState] = useState<WorkWeek>(getWorkWeek);
 
   const today = useMemo(() => new Date().toISOString().split("T")[0], []);
 
@@ -20,48 +26,42 @@ export function Calculator() {
     return isNaN(d.getTime()) ? null : d;
   }, [departureDate]);
 
-  const holidays = useMemo(() => {
-    const all: Holiday[] = [];
-    for (let y = 2024; y <= 2050; y++) all.push(...getHolidaysForYear(y));
-    return all;
+  const handleWorkWeekChange = useCallback((ww: WorkWeek) => {
+    setWorkWeekState(ww);
+    setWorkWeek(ww);
+    setResult(null);
   }, []);
-
-  const holidayDates = useMemo(() => holidays.map((h) => new Date(h.date)), [holidays]);
-
-  const isHoliday = useCallback(
-    (dateStr: string) => holidayDates.some((hd) => hd.toISOString().split("T")[0] === dateStr),
-    [holidayDates]
-  );
 
   const handleCalculate = useCallback(() => {
     setError("");
     const days = parseInt(duration, 10);
 
     if (!duration || isNaN(days) || days < 1) {
-      setError("يرجى إدخال مدة صحيحة");
+      setError(t("calc.duration.error.invalid"));
       return;
     }
     if (days > 90) {
-      setError("المدة لا تتجاوز 90 يوم");
+      setError(t("calc.duration.error.max"));
       return;
     }
     if (!departureDate || !parsedDate) {
-      setError("يرجى اختيار تاريخ الذهاب");
+      setError(t("calc.date.error"));
       return;
     }
 
-    const r = calculateDates(parsedDate, days);
+    const r = calculateDates(parsedDate, days, workWeek);
     setResult(r);
     setSheetOpen(true);
 
     addToHistory({
-      departureDate: parsedDate.toISOString(),
+      departureDate: toLocalDateStr(parsedDate),
       durationDays: days,
-      returnDate: r.returnDate.toISOString(),
-      resumeDate: r.resumeDate.toISOString(),
+      returnDate: toLocalDateStr(r.returnDate),
+      resumeDate: toLocalDateStr(r.resumeDate),
       overlaps: r.overlaps.length,
     });
-  }, [duration, departureDate, parsedDate]);
+    saveReminder(toLocalDateStr(r.resumeDate));
+  }, [duration, departureDate, parsedDate, workWeek]);
 
   const handleReset = () => {
     setDuration("");
@@ -76,7 +76,7 @@ export function Calculator() {
         <div className="section">
           <div className="section-header">
             <Clock size={16} weight="duotone" />
-            <label htmlFor="duration">مدة العطلة (بالأيام)</label>
+            <label htmlFor="duration">{t("calc.duration.label")}</label>
           </div>
           <input
             id="duration"
@@ -86,13 +86,16 @@ export function Calculator() {
             max={90}
             value={duration}
             onChange={(e) => {
-              const v = parseInt(e.target.value, 10);
-              if (!isNaN(v) && v > 90) return;
               setDuration(e.target.value);
               setResult(null);
               setError("");
             }}
-            placeholder="أدخل المدة"
+            onBlur={(e) => {
+              const v = parseInt(e.target.value, 10);
+              if (!isNaN(v) && v > 90) setDuration("90");
+              if (!isNaN(v) && v < 1) setDuration("1");
+            }}
+            placeholder={t("calc.duration.placeholder")}
             className="input"
             dir="rtl"
           />
@@ -112,21 +115,42 @@ export function Calculator() {
 
         <div className="section">
           <div className="section-header">
-            <Calendar size={16} weight="duotone" />
-            <label htmlFor="departure-date">تاريخ الذهاب</label>
+            <Buildings size={16} weight="duotone" />
+            <span className="section-header-label">{t("calc.workweek.label")}</span>
           </div>
-          <input
-            id="departure-date"
-            name="departure-date"
-            type="date"
+          <div className="ww-toggle">
+            <button
+              type="button"
+              className={`ww-btn ${workWeek === "sun-thu" ? "ww-btn-active" : ""}`}
+              onClick={() => handleWorkWeekChange("sun-thu")}
+            >
+              <span className="ww-days">{t("calc.workweek.sun-thu")}</span>
+              <span className="ww-off">{t("calc.workweek.off.sun-thu")}</span>
+            </button>
+            <button
+              type="button"
+              className={`ww-btn ${workWeek === "sat-wed" ? "ww-btn-active" : ""}`}
+              onClick={() => handleWorkWeekChange("sat-wed")}
+            >
+              <span className="ww-days">{t("calc.workweek.sat-wed")}</span>
+              <span className="ww-off">{t("calc.workweek.off.sat-wed")}</span>
+            </button>
+          </div>
+        </div>
+
+        <div className="section">
+          <div className="section-header">
+            <Calendar size={16} weight="duotone" />
+            <label htmlFor="departure-date">{t("calc.date.label")}</label>
+          </div>
+          <DatePicker id="departure-date"
             value={departureDate}
-            onChange={(e) => { setDepartureDate(e.target.value); setResult(null); setError(""); }}
+            onChange={(v) => { setDepartureDate(v); setResult(null); setError(""); }}
             min={today}
-            className={`input ${isHoliday(departureDate) ? "input-error" : ""}`}
-            dir="rtl"
+            isHoliday={checkHoliday}
           />
-          {departureDate && isHoliday(departureDate) && (
-            <p className="field-hint error">تنبيه: التاريخ يوافق عطلة رسمية</p>
+          {departureDate && checkHoliday(departureDate) && (
+            <p className="field-hint error">{t("calc.date.warning")}</p>
           )}
         </div>
 
@@ -136,26 +160,29 @@ export function Calculator() {
           className="btn btn-primary btn-lg"
         >
           <Lightning size={20} weight="duotone" />
-          احسب
+          {t("calc.calculate")}
         </button>
 
         {result && (
           <button onClick={handleReset} className="btn btn-outline btn-lg">
             <ArrowClockwise size={20} weight="duotone" />
-            حساب جديد
+            {t("calc.reset")}
           </button>
         )}
       </div>
 
       <BottomSheet open={sheetOpen} onClose={() => setSheetOpen(false)}>
         {result && parsedDate && (
-          <Results
-            returnDate={result.returnDate}
-            resumeDate={result.resumeDate}
-            overlaps={result.overlaps}
-            durationDays={parseInt(duration, 10)}
-            departureDate={parsedDate}
-          />
+          <>
+            <Results
+              returnDate={result.returnDate}
+              resumeDate={result.resumeDate}
+              overlaps={result.overlaps}
+              durationDays={parseInt(duration, 10)}
+              departureDate={parsedDate}
+            />
+            <InstallBanner />
+          </>
         )}
       </BottomSheet>
     </div>

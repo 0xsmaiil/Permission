@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Permission</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Tajawal', system-ui, -apple-system, sans-serif;
+      background: #f8f9fc;
+      color: #1e293b;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100dvh;
+      text-align: center;
+      padding: 24px;
+    }
+    .container {
+      max-width: 320px;
+    }
+    .logo {
+      width: 72px;
+      height: 72px;
+      border-radius: 18px;
+      background: #eab308;
+      color: #1e293b;
+      font-size: 32px;
+      font-weight: 900;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+      box-shadow: 0 8px 24px rgba(234, 179, 8, 0.3);
+    }
+    #title {
+      font-size: 22px;
+      font-weight: 900;
+      margin-bottom: 8px;
+    }
+    #desc {
+      font-size: 14px;
+      color: #64748b;
+      font-weight: 500;
+      line-height: 1.7;
+    }
+    .icon {
+      width: 48px;
+      height: 48px;
+      margin: 0 auto 20px;
+      color: #94a3b8;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="logo">P</div>
+    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+      <path d="M2 17l10 5 10-5"/>
+      <path d="M2 12l10 5 10-5"/>
+    </svg>
+    <h1 id="title"></h1>
+    <p id="desc"></p>
+  </div>
+  <script>
+    var loc = localStorage.getItem("permission-locale");
+    var ar = loc !== "fr";
+    document.documentElement.dir = ar ? "rtl" : "ltr";
+    document.documentElement.lang = ar ? "ar" : "fr";
+    document.getElementById("title").textContent = ar
+      ? "لا يوجد اتصال بالإنترنت"
+      : "Pas de connexion Internet";
+    document.getElementById("desc").innerHTML = ar
+      ? "حاسبة العطل تعمل بدون اتصال بعد التثبيت.<br>قم بتثبيت التطبيق للاستخدام في أي وقت."
+      : "Le calculateur fonctionne hors ligne après installation.<br>Installez l'application pour l'utiliser à tout moment.";
+  </script>
+</body>
+</html>

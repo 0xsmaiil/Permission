@@ -1,4 +1,5 @@
 import { Component } from "react";
+import { t } from "../lib/i18n";
 
 interface Props {
   children: React.ReactNode;
@@ -19,17 +20,19 @@ export class ErrorBoundary extends Component<Props, State> {
     console.error("[ErrorBoundary]", error, info.componentStack);
   }
 
+  handleReset = () => {
+    this.setState({ error: null });
+  };
+
   render() {
     if (this.state.error) {
       return (
-        <div style={{
-          padding: 24, textAlign: "center", color: "#ef4444",
-          fontFamily: "system-ui", marginTop: 40,
-        }}>
-          <h2 style={{ fontSize: 20 }}>⚠️ خطأ في التطبيق</h2>
-          <pre style={{ fontSize: 12, marginTop: 12, whiteSpace: "pre-wrap", direction: "ltr" }}>
-            {this.state.error.message}
-          </pre>
+        <div className="error-boundary-fallback">
+          <h2>{t("error.title")}</h2>
+          <p>{this.state.error.message}</p>
+          <button type="button" className="btn btn-primary" onClick={this.handleReset}>
+            {t("error.retry")}
+          </button>
         </div>
       );
     }
