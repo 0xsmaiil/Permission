@@ -40,7 +40,7 @@ export function DashboardTab({ history, onLoadCalculation, onHistoryChange }: Pr
     let totalDays = 0;
     let leaveCount = 0;
     const byType: Record<string, { count: number; days: number }> = {};
-    const monthlyLeaves = Array.from<number>({ length: 12 }, () => 0);
+    const monthlyLeaves = Array.from({ length: 12 }, () => 0);
     for (const h of history) {
       const d = new Date(h.departureDate + "T00:00:00");
       if (d.getFullYear() === thisYear) {

@@ -13,9 +13,9 @@ const ALGERIAN_MONTHS = {
   ],
 };
 
-function algerianMonthName(monthIndex: number, options?: { width?: "narrow" | "abbreviated" | "wide" }): string {
-  const width = options?.width ?? "wide";
-  return ALGERIAN_MONTHS[width][monthIndex];
+function algerianMonthName(monthIndex: number, options?: { width?: string }): string {
+  const width = (options?.width ?? "wide") as keyof typeof ALGERIAN_MONTHS;
+  return ALGERIAN_MONTHS[width]?.[monthIndex] ?? "";
 }
 
 const arDzLocale: DfnsLocale = {

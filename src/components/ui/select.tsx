@@ -181,8 +181,7 @@ function SelectScrollDownButton({
       )}
       {...props}
     >
-      <ChevronDownIcon
-      />
+      <CaretDown />
     </SelectPrimitive.ScrollDownArrow>
   )
 }

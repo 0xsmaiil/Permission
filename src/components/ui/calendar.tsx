@@ -9,6 +9,7 @@ import {
 import { cn } from "@/lib/utils"
 import { Button, buttonVariants } from "@/components/ui/button"
 import { CaretLeft, CaretRight, CaretDown } from "@phosphor-icons/react"
+import type { Month } from "date-fns"
 
 function Calendar({
   className,
@@ -38,7 +39,7 @@ function Calendar({
       locale={locale}
       formatters={{
         formatMonthDropdown: (date) =>
-          locale?.localize?.month?.(date.getMonth(), { width: "abbreviated" }) ?? "",
+          locale?.localize?.month?.(date.getMonth() as Month, { width: "abbreviated" }) ?? "",
         ...formatters,
       }}
       classNames={{
