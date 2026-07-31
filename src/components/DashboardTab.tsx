@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState, useCallback } from "react";
 import { CalendarBlank, CalendarCheck, Trash, Clock } from "@phosphor-icons/react";
 import { format } from "date-fns";
 import type { CalculationRecord } from "@/lib/storage";
-import { clearHistory, getLeaveTypeLabel, clearAllData } from "@/lib/storage";
+import { clearHistory, getLeaveTypeLabel } from "@/lib/storage";
 import { toLocalDateStr } from "@/lib/dates";
 import { useT, getDateFnsLocale } from "@/lib/i18n";
 import { getCachedHolidaysForYear } from "@/lib/holidays";
@@ -16,18 +16,13 @@ interface Props {
   history: CalculationRecord[];
   onLoadCalculation: (departure: string, duration: string, leaveType: string) => void;
   onHistoryChange?: () => void;
+  active?: boolean;
 }
 
-export function DashboardTab({ history, onLoadCalculation, onHistoryChange }: Props) {
+export function DashboardTab({ history, onLoadCalculation, onHistoryChange, active = true }: Props) {
   const t = useT();
   const dfnsLocale = getDateFnsLocale();
-  const [resetOpen, setResetOpen] = useState(false);
   const [clearOpen, setClearOpen] = useState(false);
-
-  const handleReset = () => {
-    clearAllData();
-    window.location.reload();
-  };
 
   const handleClearHistory = () => {
     clearHistory();
@@ -55,7 +50,7 @@ export function DashboardTab({ history, onLoadCalculation, onHistoryChange }: Pr
     return { totalDays, leaveCount, byType, monthlyLeaves };
   }, [history]);
 
-  const monthHolidays = useMemo(() => {
+  const monthHolidays = (() => {
     const now = new Date();
     const year = now.getFullYear();
     const month = now.getMonth() + 1;
@@ -79,7 +74,7 @@ export function DashboardTab({ history, onLoadCalculation, onHistoryChange }: Pr
     ].sort((a, b) => a.day - b.day);
 
     return { current, next };
-  }, []);
+  })();
 
   return (
     <div className="max-w-md mx-auto px-5 py-6 space-y-6">
@@ -92,42 +87,12 @@ export function DashboardTab({ history, onLoadCalculation, onHistoryChange }: Pr
 
           {monthHolidays.current.length > 0 ? (
             <div className="space-y-2">
-              {monthHolidays.current.map((h) => (
-                <div key={`${h.date}-${h.name}`} className="flex items-center gap-3 text-sm">
-                  <span className="text-xs font-bold text-muted-foreground tabular-nums w-16 shrink-0">
-                    {format(new Date(h.date + "T00:00:00"), "d MMM", { locale: getDateFnsLocale() })}
-                  </span>
-                  <span className="flex-1 font-medium">{h.name}</span>
-                  <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full whitespace-nowrap ${
-                    h.type === "national"
-                      ? "bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300"
-                      : h.type === "religious"
-                      ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300"
-                      : "bg-muted text-muted-foreground"
-                  }`}>
-                    {h.type === "national"
-                      ? t("holiday.type.national")
-                      : h.type === "religious"
-                      ? t("holiday.type.religious")
-                      : t("holiday.type.custom")}
-                  </span>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="text-sm text-muted-foreground">{t("dashboard.holidays.none")}</p>
-          )}
-
-          {monthHolidays.next.length > 0 && (
-            <div className="pt-3 border-t border-border/50">
-              <p className="text-xs font-semibold text-muted-foreground mb-2">
-                {t("dashboard.holidays.nextMonth", { count: monthHolidays.next.length })}
-              </p>
-              <div className="space-y-2">
-                {monthHolidays.next.map((h) => (
+              {monthHolidays.current.map((h) => {
+                const d = new Date(h.date + "T00:00:00");
+                return (
                   <div key={`${h.date}-${h.name}`} className="flex items-center gap-3 text-sm">
-                    <span className="text-xs font-bold text-muted-foreground tabular-nums w-16 shrink-0">
-                      {format(new Date(h.date + "T00:00:00"), "d MMM", { locale: getDateFnsLocale() })}
+                    <span className="text-xs font-bold text-muted-foreground tabular-nums w-24 shrink-0">
+                      {format(d, "EEEE d MMM", { locale: getDateFnsLocale() })}
                     </span>
                     <span className="flex-1 font-medium">{h.name}</span>
                     <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full whitespace-nowrap ${
@@ -144,14 +109,50 @@ export function DashboardTab({ history, onLoadCalculation, onHistoryChange }: Pr
                         : t("holiday.type.custom")}
                     </span>
                   </div>
-                ))}
+                );
+              })}
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground">{t("dashboard.holidays.none")}</p>
+          )}
+
+          {monthHolidays.next.length > 0 && (
+            <div className="pt-3 border-t border-border/50">
+              <p className="text-xs font-semibold text-muted-foreground mb-2">
+                {t("dashboard.holidays.nextMonth", { count: monthHolidays.next.length })}
+              </p>
+              <div className="space-y-2">
+                {monthHolidays.next.map((h) => {
+                  const d = new Date(h.date + "T00:00:00");
+                  return (
+                    <div key={`${h.date}-${h.name}`} className="flex items-center gap-3 text-sm">
+                      <span className="text-xs font-bold text-muted-foreground tabular-nums w-24 shrink-0">
+                        {format(d, "EEEE d MMM", { locale: getDateFnsLocale() })}
+                      </span>
+                      <span className="flex-1 font-medium">{h.name}</span>
+                      <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full whitespace-nowrap ${
+                        h.type === "national"
+                          ? "bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300"
+                          : h.type === "religious"
+                          ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300"
+                          : "bg-muted text-muted-foreground"
+                      }`}>
+                        {h.type === "national"
+                          ? t("holiday.type.national")
+                          : h.type === "religious"
+                          ? t("holiday.type.religious")
+                          : t("holiday.type.custom")}
+                      </span>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           )}
         </div>
       </Card>
 
-      <DonutChart totalDays={yearlyStats.totalDays} byType={yearlyStats.byType} monthlyLeaves={yearlyStats.monthlyLeaves} />
+      <DonutChart totalDays={yearlyStats.totalDays} byType={yearlyStats.byType} monthlyLeaves={yearlyStats.monthlyLeaves} active={active} />
 
       <Card className="border-border/60 shadow-card rounded-2xl overflow-hidden">
         <div className="p-5">
@@ -194,17 +195,26 @@ export function DashboardTab({ history, onLoadCalculation, onHistoryChange }: Pr
                 return (
                   <Card
                     key={h.id}
-                    className="cursor-pointer hover:bg-muted/50 active:scale-[0.99] transition-all duration-150 border-border/60 shadow-card rounded-xl overflow-hidden"
+                    role="button"
+                    tabIndex={0}
+                    aria-label={`${format(raw, "EEEE d MMMM yyyy", { locale: dfnsLocale })} · ${h.durationDays} ${t("history.day")}`}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        onLoadCalculation(toLocalDateStr(raw), String(h.durationDays), h.leaveType);
+                      }
+                    }}
+                    className="cursor-pointer hover:bg-muted/50 active:scale-[0.99] transition-all duration-150 border-border/60 shadow-card rounded-xl overflow-hidden focus-visible:outline-2 focus-visible:outline-ring"
                     onClick={() => onLoadCalculation(toLocalDateStr(raw), String(h.durationDays), h.leaveType)}
                   >
                     <div className="p-4">
                       <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center gap-2.5">
                           <div className="w-9 h-9 rounded-lg bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center">
-                            <CalendarBlank className="h-4 w-4 text-primary-600 dark:text-primary-400" />
+                            <CalendarBlank className="h-4 w-4 text-primary-700 dark:text-primary-400" />
                           </div>
                           <span className="font-bold text-sm">
-                            {format(raw, "d MMMM yyyy", { locale: dfnsLocale })}
+                            {format(raw, "EEEE d MMMM yyyy", { locale: dfnsLocale })}
                           </span>
                         </div>
                         <Badge
@@ -223,7 +233,7 @@ export function DashboardTab({ history, onLoadCalculation, onHistoryChange }: Pr
                         <span className="flex items-center gap-1">
                           <CalendarCheck className="h-3.5 w-3.5" />
                           <span>
-                            {format(returnDate, "d MMM", { locale: dfnsLocale })}
+                            {format(returnDate, "EEEE d MMM", { locale: dfnsLocale })}
                           </span>
                         </span>
                         {h.overlaps > 0 && (
@@ -240,29 +250,6 @@ export function DashboardTab({ history, onLoadCalculation, onHistoryChange }: Pr
           )}
         </div>
       </Card>
-
-      <div className="pt-4 border-t border-border/50">
-        <Dialog open={resetOpen} onOpenChange={setResetOpen}>
-          <DialogTrigger
-            render={
-              <Button variant="destructive" size="sm" className="w-full h-10 text-xs font-semibold gap-1.5 rounded-xl">
-                <Trash className="h-4 w-4" />
-                {t("dashboard.resetData")}
-              </Button>
-            }
-          />
-          <DialogContent className="rounded-2xl pt-6" showCloseButton={false}>
-            <DialogHeader>
-              <DialogTitle className="text-lg font-bold">{t("dashboard.resetData")}</DialogTitle>
-              <DialogDescription className="text-sm text-muted-foreground">{t("dashboard.resetConfirm")}</DialogDescription>
-            </DialogHeader>
-            <DialogFooter className="flex-row">
-              <Button variant="outline" className="rounded-lg" onClick={() => setResetOpen(false)}>{t("common.cancel")}</Button>
-              <Button variant="destructive" className="rounded-lg" onClick={handleReset}>{t("dashboard.resetConfirmYes")}</Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      </div>
     </div>
   );
 }
@@ -275,7 +262,7 @@ const TYPE_COLORS: Record<string, string> = {
 };
 const FALLBACK_COLOR = "#8b5cf6";
 
-function DonutChart({ totalDays, byType, monthlyLeaves }: { totalDays: number; byType: Record<string, { count: number; days: number }>; monthlyLeaves: number[] }) {
+function DonutChart({ totalDays, byType, monthlyLeaves, active = true }: { totalDays: number; byType: Record<string, { count: number; days: number }>; monthlyLeaves: number[]; active?: boolean }) {
   const t = useT();
   const entries = Object.entries(byType).sort((a, b) => b[1].days - a[1].days);
   const r = 36;
@@ -287,17 +274,17 @@ function DonutChart({ totalDays, byType, monthlyLeaves }: { totalDays: number; b
   }, [entries.length]);
 
   useEffect(() => {
+    if (!active) return;
     setRevealed(0);
     const t0 = setTimeout(revealNext, 100);
     return () => clearTimeout(t0);
-  }, [revealNext]);
+  }, [active, revealNext]);
 
   useEffect(() => {
-    if (revealed < entries.length) {
-      const t0 = setTimeout(revealNext, 200);
-      return () => clearTimeout(t0);
-    }
-  }, [revealed, entries.length, revealNext]);
+    if (!active || revealed >= entries.length) return;
+    const t0 = setTimeout(revealNext, 200);
+    return () => clearTimeout(t0);
+  }, [active, revealed, entries.length, revealNext]);
 
   let cumOffset = 0;
 
@@ -305,7 +292,7 @@ function DonutChart({ totalDays, byType, monthlyLeaves }: { totalDays: number; b
     <Card className="border-border/60 shadow-card rounded-2xl overflow-hidden">
       <div className="p-5">
         <div className="flex items-center gap-5">
-          <svg viewBox="0 0 100 100" className="w-28 h-28 shrink-0">
+          <svg viewBox="0 0 100 100" className="w-28 h-28 shrink-0" role="img" aria-label={t("dashboard.chartAria", { days: totalDays })}>
             <g transform="rotate(-90 50 50)">
               <circle cx="50" cy="50" r={r}
                 fill="none" className="stroke-muted" strokeWidth="9"

@@ -26,13 +26,21 @@ function markNotified(reminderId: string): void {
   const today = format(new Date(), "yyyy-MM-dd");
   const list = getNotified();
   list.push({ reminderId, date: today });
-  localStorage.setItem(NOTIFIED_KEY, JSON.stringify(list));
+  try {
+    localStorage.setItem(NOTIFIED_KEY, JSON.stringify(list));
+  } catch {
+    // Storage unavailable (private mode, quota) — fail silently.
+  }
 }
 
 function cleanupOldEntries(): void {
   const today = format(new Date(), "yyyy-MM-dd");
   const list = getNotified().filter((n) => n.date === today);
-  localStorage.setItem(NOTIFIED_KEY, JSON.stringify(list));
+  try {
+    localStorage.setItem(NOTIFIED_KEY, JSON.stringify(list));
+  } catch {
+    // Storage unavailable (private mode, quota) — fail silently.
+  }
 }
 
 function getReminderBody(type: "departure" | "resume", daysUntil: number, dateStr: string): string {
@@ -71,6 +79,7 @@ export async function checkReminders(): Promise<void> {
   for (const r of resume) {
     const days = differenceInCalendarDays(parse(r.resumeDate, "yyyy-MM-dd", now), now);
     if (days >= 0 && days <= 5 && !isNotifiedToday(r.id)) {
+      markNotified(r.id);
       due.push({ id: r.id, type: "resume", date: r.resumeDate, daysUntil: days });
     }
   }
@@ -78,6 +87,7 @@ export async function checkReminders(): Promise<void> {
   for (const r of departures) {
     const days = differenceInCalendarDays(parse(r.departureDate, "yyyy-MM-dd", now), now);
     if (days >= 0 && days <= 5 && !isNotifiedToday(r.id)) {
+      markNotified(r.id);
       due.push({ id: r.id, type: "departure", date: r.departureDate, daysUntil: days });
     }
   }
@@ -90,7 +100,6 @@ export async function checkReminders(): Promise<void> {
     const dateStr = format(parse(r.date, "yyyy-MM-dd", now), "d MMMM", { locale: getDateFnsLocale() });
     const body = getReminderBody(r.type, r.daysUntil, dateStr);
     sw.active?.postMessage({ type: "SHOW_REMINDER", title: "Permission", body, id: r.id });
-    markNotified(r.id);
   }
 }
 

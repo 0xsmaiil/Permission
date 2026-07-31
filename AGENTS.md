@@ -35,27 +35,6 @@ Still down: kimi-k2.7-code, kimi-k3, qwen-3.8-max, glm-5.2
 - `designer`: logfare/deepseek-v4-pro
 - `build`: logfare/deepseek-v4-pro
 
-## Recent Changes
-- Added PWA install landing page with Android/iOS buttons
-- Removed EntitlementBar (solde annuel) from HomeTab
-- Removed old InstallBanner and useInstallPrompt hook
-- Replaced text logo with image in header
-- Added persistent push gate dismissal via localStorage
-- EntitlementBar and InstallBanner files can be deleted safely
-
-## Current Session (Jul 28 2026)
-**Task:** Fix Android PWA splash screen — the icon has a white box on dark background.
-
-**Done so far:**
-- Created `public/pwa-192x192.png` and `public/pwa-512x512.png` from `logo-512.png` with transparent backgrounds (cropped to logo bounding box 938×733, resized with 8% padding)
-- Updated `vite.config.ts` — `theme_color` → `#09090b`, added `purpose: 'any maskable'` to 512×512 icon, icon paths updated to `pwa-*` files
-- Updated `index.html` — `theme-color` → `#09090b`, `favicon` and `apple-touch-icon` → `pwa-192x192.png`
-- Deleted old icon files (`logo.png`, `logo-192.png`, `logo-512.png`, `PermissionLogo.png`)
-- Verified: `tsc --noEmit` passes, no lint errors
-
-**Still pending:**
-1. Deploy to Vercel, uninstall & reinstall on Android to test the splash screen
-
 ## Key Files
 - `src/hooks/usePWAInstall.ts` — standalone detection + deferred prompt capture
 - `src/components/InstallLandingPage.tsx` — full-screen install page

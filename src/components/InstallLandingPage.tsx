@@ -42,10 +42,14 @@ export function InstallLandingPage({ deferredPrompt }: Props) {
     }
 
     if (deferredPrompt) {
-      await deferredPrompt.prompt();
-      const { outcome } = await deferredPrompt.userChoice;
-      if (outcome === "accepted") {
-        startProgressAnimation();
+      try {
+        await deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === "accepted") {
+          startProgressAnimation();
+        }
+      } catch {
+        setInfoMessage(t("install.landing.androidFallback"));
       }
     } else {
       setInfoMessage(t("install.landing.androidFallback"));
@@ -110,7 +114,7 @@ export function InstallLandingPage({ deferredPrompt }: Props) {
   return (
     <div className="fixed inset-0 z-50 flex flex-col bg-white p-6 text-center text-zinc-900">
       <div className="flex flex-col items-center justify-center flex-1">
-        <img src="/pwa-maskable-192x192.png" alt="Permission App Logo" className="w-24 h-24 mx-auto mb-6 object-contain" />
+        <img src="/finallogo.png" alt="Permission App Logo" className="w-32 h-32 mx-auto mb-6 object-contain" />
 
         <p className="mb-10 text-sm text-zinc-500 max-w-xs mx-auto">
           {t("install.landing.desc")}

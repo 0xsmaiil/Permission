@@ -54,6 +54,15 @@ export default async function handler(req, res) {
       return res.status(401).json({ error: "Unauthorized" });
     }
 
+    let body = req.body;
+    if (typeof body === "string") {
+      try {
+        body = body ? JSON.parse(body) : {};
+      } catch {
+        return res.status(400).json({ error: "Invalid JSON body" });
+      }
+    }
+
     assertEnv();
 
     webpush.setVapidDetails(
@@ -62,7 +71,6 @@ export default async function handler(req, res) {
       process.env.VAPID_PRIVATE_KEY,
     );
 
-    const body = req.body;
     const message = body?.message;
     if (!message) return res.status(200).json({ ok: true });
 

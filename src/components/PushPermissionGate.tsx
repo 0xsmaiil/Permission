@@ -11,20 +11,65 @@ const PUSH_GATE_DISMISSED_KEY = "permission-push-gate-dismissed";
 
 export function PushPermissionGate({ children }: Props) {
   const { isSubscribed, permissionState, error, subscribe } = usePushSubscription();
-  const [resolved, setResolved] = useState(() => localStorage.getItem(PUSH_GATE_DISMISSED_KEY) === "1");
+  const [resolved, setResolved] = useState(() => {
+    try {
+      return localStorage.getItem(PUSH_GATE_DISMISSED_KEY) === "1";
+    } catch {
+      return false;
+    }
+  });
   const initiallySubscribed = useRef(isSubscribed);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (isSubscribed) {
-      localStorage.removeItem(PUSH_GATE_DISMISSED_KEY);
+      try {
+        localStorage.removeItem(PUSH_GATE_DISMISSED_KEY);
+      } catch {
+        // ignore
+      }
       const delay = initiallySubscribed.current ? 0 : 1500;
       const t = setTimeout(() => setResolved(true), delay);
       return () => clearTimeout(t);
     }
   }, [isSubscribed]);
 
+  useEffect(() => {
+    if (resolved) return;
+    const container = containerRef.current;
+    const previouslyFocused = document.activeElement as HTMLElement | null;
+    container?.focus();
+    const handler = (e: KeyboardEvent) => {
+      if (e.key !== "Tab" || !container) return;
+      const focusables = Array.from(
+        container.querySelectorAll<HTMLElement>(
+          'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        )
+      ).filter((el) => el.offsetParent !== null);
+      if (focusables.length === 0) return;
+      const first = focusables[0]!;
+      const last = focusables[focusables.length - 1]!;
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    };
+    document.addEventListener("keydown", handler);
+    return () => {
+      document.removeEventListener("keydown", handler);
+      previouslyFocused?.focus();
+    };
+  }, [resolved]);
+
   const handleSkip = () => {
-    localStorage.setItem(PUSH_GATE_DISMISSED_KEY, "1");
+    try {
+      localStorage.setItem(PUSH_GATE_DISMISSED_KEY, "1");
+    } catch {
+      // ignore
+    }
     setResolved(true);
   };
 
@@ -33,12 +78,19 @@ export function PushPermissionGate({ children }: Props) {
   if (resolved) return <>{children}</>;
 
   return (
-    <div style={{
-      position: "fixed", inset: 0, zIndex: 9999,
-      display: "flex", flexDirection: "column",
-      alignItems: "center", justifyContent: "center",
-      background: "#0f172a", padding: "0 24px",
-    }}>
+    <div
+      ref={containerRef}
+      role="dialog"
+      aria-modal="true"
+      aria-label="Notifications"
+      tabIndex={-1}
+      style={{
+        position: "fixed", inset: 0, zIndex: 9999,
+        display: "flex", flexDirection: "column",
+        alignItems: "center", justifyContent: "center",
+        background: "#0f172a", padding: "0 24px",
+      }}
+    >
       <div style={{
         display: "flex", flexDirection: "column",
         alignItems: "center", textAlign: "center",
@@ -112,7 +164,7 @@ function IdleState({ isSubscribing, onSubscribe, onSkip }: { isSubscribing: bool
         <h2 style={{ fontSize: 22, fontWeight: 900, color: "#f1f5f9", marginBottom: 8 }}>
           {t("pushGate.title")}
         </h2>
-        <p style={{ fontSize: 13, fontWeight: 700, color: "#64748b", lineHeight: 1.6, margin: 0 }}>
+        <p style={{ fontSize: 13, fontWeight: 700, color: "#94a3b8", lineHeight: 1.6, margin: 0 }}>
           {t("pushGate.desc")}
         </p>
       </div>
@@ -135,7 +187,7 @@ function IdleState({ isSubscribing, onSubscribe, onSkip }: { isSubscribing: bool
         )}
       </button>
       <button onClick={onSkip} style={{
-        background: "none", border: "none", color: "#64748b",
+        background: "none", border: "none", color: "#94a3b8",
         fontSize: 12, fontWeight: 700, cursor: "pointer", padding: 4,
       }}>
         {t("pushGate.skip")}
@@ -173,7 +225,7 @@ function DeniedState({ onRetry, onSkip }: { onRetry: () => void; onSkip: () => v
         {t("pushGate.denied.retry")}
       </button>
       <button onClick={onSkip} style={{
-        background: "none", border: "none", color: "#64748b",
+        background: "none", border: "none", color: "#94a3b8",
         fontSize: 12, fontWeight: 700, cursor: "pointer", padding: 4,
       }}>
         {t("pushGate.skip")}
@@ -189,7 +241,7 @@ function GrantedState() {
       <h2 style={{ fontSize: 20, fontWeight: 900, color: "#34d399" }}>
         {t("pushGate.granted.title")}
       </h2>
-      <p style={{ fontSize: 13, fontWeight: 700, color: "#64748b" }}>
+      <p style={{ fontSize: 13, fontWeight: 700, color: "#94a3b8" }}>
         {t("pushGate.granted.desc")}
       </p>
     </div>
@@ -219,7 +271,7 @@ function ErrorState({ message, onRetry, onSkip }: { message: string | null; onRe
         {t("pushGate.error.retry")}
       </button>
       <button onClick={onSkip} style={{
-        background: "none", border: "none", color: "#64748b",
+        background: "none", border: "none", color: "#94a3b8",
         fontSize: 12, fontWeight: 700, cursor: "pointer", padding: 4,
       }}>
         {t("pushGate.skip")}

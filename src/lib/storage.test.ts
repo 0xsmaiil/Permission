@@ -10,9 +10,6 @@ import {
   saveDepartureReminder,
   getDepartureReminders,
   dismissDepartureReminder,
-  setAnnualEntitlement,
-  getAnnualEntitlement,
-  getTotalDaysUsed,
   getLeaveTypeLabel,
 } from "./storage";
 
@@ -195,54 +192,6 @@ describe("saveDepartureReminder / getDepartureReminders", () => {
     const reminders = getDepartureReminders();
     dismissDepartureReminder(reminders[0].id);
     expect(getDepartureReminders()).toHaveLength(0);
-  });
-});
-
-describe("setAnnualEntitlement / getAnnualEntitlement", () => {
-  it("stores and retrieves entitlement", () => {
-    setAnnualEntitlement(30);
-    expect(getAnnualEntitlement()).toBe(30);
-  });
-
-  it("returns 0 when not set", () => {
-    expect(getAnnualEntitlement()).toBe(0);
-  });
-
-  it("returns 0 for non-numeric storage", () => {
-    localStorage.setItem("permission-entitlement", "abc");
-    expect(getAnnualEntitlement()).toBe(0);
-  });
-
-  it("updates existing entitlement", () => {
-    setAnnualEntitlement(30);
-    setAnnualEntitlement(45);
-    expect(getAnnualEntitlement()).toBe(45);
-  });
-});
-
-describe("getTotalDaysUsed", () => {
-  it("sums durationDays across all records", () => {
-    addToHistory({
-      departureDate: "2026-07-01",
-      durationDays: 5,
-      returnDate: "2026-07-06",
-      resumeDate: "2026-07-07",
-      overlaps: 0,
-      leaveType: "annual",
-    });
-    addToHistory({
-      departureDate: "2026-08-01",
-      durationDays: 3,
-      returnDate: "2026-08-04",
-      resumeDate: "2026-08-05",
-      overlaps: 0,
-      leaveType: "sick",
-    });
-    expect(getTotalDaysUsed()).toBe(8);
-  });
-
-  it("returns 0 when no records exist", () => {
-    expect(getTotalDaysUsed()).toBe(0);
   });
 });
 

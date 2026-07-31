@@ -1,4 +1,4 @@
-import { useRef, useCallback } from "react";
+import { useRef, useCallback, type TouchEvent } from "react";
 
 interface SwipeOptions {
   onSwipeLeft?: () => void;
@@ -11,13 +11,13 @@ export function useSwipe({ onSwipeLeft, onSwipeRight, onSwipeDown, threshold = 6
   const startX = useRef(0);
   const startY = useRef(0);
 
-  const onTouchStart = useCallback((e: React.TouchEvent) => {
+  const onTouchStart = useCallback((e: TouchEvent) => {
     startX.current = e.touches[0].clientX;
     startY.current = e.touches[0].clientY;
   }, []);
 
   const onTouchMove = useCallback(
-    (e: React.TouchEvent) => {
+    (e: TouchEvent) => {
       if (startY.current === 0 || !onSwipeDown) return;
       const dy = e.touches[0].clientY - startY.current;
       if (dy > threshold) {
@@ -30,7 +30,7 @@ export function useSwipe({ onSwipeLeft, onSwipeRight, onSwipeDown, threshold = 6
   );
 
   const onTouchEnd = useCallback(
-    (e: React.TouchEvent) => {
+    (e: TouchEvent) => {
       const endX = e.changedTouches[0].clientX;
       const endY = e.changedTouches[0].clientY;
       const dx = endX - startX.current;

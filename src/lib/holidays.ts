@@ -174,8 +174,10 @@ export function calculateDates(departureDate: Date, durationDays: number) {
   const holidays: Holiday[] = [];
   const seenHolidays = new Set<string>();
 
-  for (const holidaysOfYear of [returnDate.getFullYear(), start.getFullYear()]) {
-    for (const h of getCachedHolidaysForYear(holidaysOfYear)) {
+  const firstYear = start.getFullYear();
+  const lastYear = returnDate.getFullYear();
+  for (let year = firstYear; year <= lastYear; year++) {
+    for (const h of getCachedHolidaysForYear(year)) {
       const hDate = parse(h.date, "yyyy-MM-dd", new Date());
       if (hDate >= start && hDate <= returnDate && !seenHolidays.has(h.date)) {
         seenHolidays.add(h.date);
@@ -193,11 +195,10 @@ export function calculateDates(departureDate: Date, durationDays: number) {
   }
 
   // Check if leave overlaps with Ramadan
-  const ramadanYears = new Set([start.getFullYear(), returnDate.getFullYear()]);
-  for (const y of ramadanYears) {
-    for (const r of getRamadanRangesForYear(y)) {
-      if (r.start <= returnDate && r.end >= start && !seenHolidays.has("ramadan-" + y)) {
-        seenHolidays.add("ramadan-" + y);
+  for (let year = firstYear; year <= lastYear; year++) {
+    for (const r of getRamadanRangesForYear(year)) {
+      if (r.start <= returnDate && r.end >= start && !seenHolidays.has("ramadan-" + year)) {
+        seenHolidays.add("ramadan-" + year);
         const overlapStart = r.start > start ? r.start : start;
         const overlapEnd = r.end < returnDate ? r.end : returnDate;
         const ramadanDays = Math.round((overlapEnd.getTime() - overlapStart.getTime()) / 86400000) + 1;

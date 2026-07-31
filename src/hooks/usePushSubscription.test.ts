@@ -87,12 +87,25 @@ describe("usePushSubscription", () => {
     expect(result.current.error).toBeNull();
   });
 
-  it("sets subscribed to true when flag is in localStorage and permission is granted", () => {
+  it("sets subscribed to true when flag is in localStorage, permission granted, and a push subscription exists", async () => {
     mockNotificationPermission("granted");
+    mockPushEnvironment({ endpoint: "https://example.com/push" });
     localStorage.setItem("push_subscribed", "true");
     const { result } = renderHook(() => usePushSubscription());
-    expect(result.current.isSubscribed).toBe(true);
+    await waitFor(() => {
+      expect(result.current.isSubscribed).toBe(true);
+    });
     expect(result.current.permissionState).toBe("granted");
+  });
+
+  it("removes localStorage flag when flag is set but no push subscription exists", async () => {
+    mockNotificationPermission("granted");
+    mockPushEnvironment(null);
+    localStorage.setItem("push_subscribed", "true");
+    renderHook(() => usePushSubscription());
+    await waitFor(() => {
+      expect(localStorage.getItem("push_subscribed")).toBeNull();
+    });
   });
 
   it("removes localStorage flag when permission is not granted", () => {

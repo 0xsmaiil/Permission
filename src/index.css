@@ -14,6 +14,8 @@
   --color-primary-800: #854d0e;
   --color-primary-900: #713f12;
   --color-primary-950: #422006;
+  --color-primary: var(--color-primary-600);
+  --color-primary-foreground: #ffffff;
 
   --color-surface-50: #f8fafc;
   --color-surface-100: #f1f5f9;
@@ -29,9 +31,9 @@
 
   --color-success: #10b981;
   --color-success-foreground: #ecfdf5;
-  --color-destructive: #ef4444;
-  --color-destructive-foreground: #fef2f2;
-  --color-warning: #f59e0b;
+  --color-destructive: #dc2626;
+  --color-destructive-foreground: #ffffff;
+  --color-warning: #b45309;
   --color-warning-foreground: #fffbeb;
 
   --color-background: var(--color-surface-50);
@@ -42,7 +44,7 @@
   --color-popover-foreground: var(--color-surface-900);
   --color-border: var(--color-surface-200);
   --color-muted: var(--color-surface-100);
-  --color-muted-foreground: var(--color-surface-500);
+  --color-muted-foreground: var(--color-surface-600);
   --color-accent: var(--color-primary-100);
   --color-accent-foreground: var(--color-primary-900);
 
@@ -80,6 +82,10 @@
   --color-muted-foreground: var(--color-surface-400);
   --color-accent: var(--color-primary-900);
   --color-accent-foreground: var(--color-primary-100);
+  --color-destructive: #ef4444;
+  --color-destructive-foreground: #fef2f2;
+  --color-warning: #fbbf24;
+  --color-warning-foreground: #451a03;
 }
 
 html[lang="ar"] {
@@ -124,7 +130,23 @@ body {
   100% { transform: translateX(-64px); }
 }
 
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.spin { animation: spin 1s linear infinite; }
+
 .animate-wave-surface { animation: wave-slide 2s linear infinite; }
 .animate-wave-under { animation: wave-slide 3s linear infinite; }
+
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+@supports (padding: max(0px)) {
+  .safe-bottom {
+    padding-bottom: max(env(safe-area-inset-bottom), 0px);
+  }
+}
 
 

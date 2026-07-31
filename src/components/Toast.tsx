@@ -20,7 +20,7 @@ export function ToastContainer() {
   if (items.length === 0) return null;
 
   return (
-    <div className="fixed bottom-24 inset-x-0 z-50 flex flex-col items-center gap-2 pointer-events-none" role="alert" aria-live="polite">
+    <div className="fixed bottom-[calc(5.5rem+env(safe-area-inset-bottom))] inset-x-0 z-50 flex flex-col items-center gap-2 pointer-events-none" role="alert">
       {items.map((item) => (
         <div
           key={item.id}

@@ -38,12 +38,16 @@ export const strings: Record<Locale, Record<string, string>> = {
     "tab.history": "السجل",
     "tab.calendar": "الرزنامة",
     "tab.dashboard": "لوحة التحكم",
+    "tab.settings": "الإعدادات",
+    "tab.aria": "التنقل بين الأقسام",
 
     "calc.duration.label": "مدة العطلة (بالأيام)",
+    "calc.duration.help": "أدخل عدد أيام الغياب عن العمل يحسب تاريخ العودة من هذه المدة الحد الأقصى سنتان (730 يومًا).",
     "calc.duration.placeholder": "أدخل المدة",
     "calc.duration.error.invalid": "يرجى إدخال مدة صحيحة",
     "calc.duration.error.max": "المدة لا تتجاوز سنتين",
     "calc.date.label": "تاريخ الذهاب",
+    "calc.date.help": "حدد اليوم الذي تبدأ فيه عطلتك تحسب تواريخ العودة والاستئناف تلقائيًا مع مراعاة الأعياد الوطنية والإسلامية مع تنبيهك إذا كان التاريخ يوافق عطلة ما.",
     "calc.date.placeholder": "اختر التاريخ",
     "calc.date.warning": "تنبيه: التاريخ يوافق عطلة رسمية",
     "calc.date.error": "يرجى اختيار تاريخ الذهاب",
@@ -59,9 +63,11 @@ export const strings: Record<Locale, Record<string, string>> = {
     "calc.return.late": "تأخر {days} أيام عن الموعد",
     "calc.return.onTime": "في الوقت المحدد",
     "calc.work.inputLabel": "عدد أيام العمل قبل العطلة القادمة",
+    "calc.work.inputError": "أدخل عدد أيام صحيح بين 1 و {max}",
     "calc.work.remaining": "متبقي {days} يوم عمل",
 
     "calc.type.label": "نوع العطلة",
+    "calc.type.help": "اختر نوع العطلة — يظهر في سجلّك ويُصنّف إحصائياتك في لوحة التحكم.",
     "calc.type.conge": "سنوية",
     "calc.type.permission": "إجازة",
     "calc.type.convalescence": "مرضية",
@@ -86,11 +92,6 @@ export const strings: Record<Locale, Record<string, string>> = {
     "results.share.fail": "تعذر النسخ",
     "results.save": "حفظ في السجل",
     "results.saved": "تم الحفظ ✓",
-    "results.entitlement.used": "المستخدم",
-    "results.entitlement.remaining": "المتبقي",
-    "results.entitlement.total": "الرصيد",
-    "results.entitlement.title": "رصيد العطل",
-    "results.entitlement.after": "بعد هذه العطلة: {days} يوم متبقي",
     "results.disclaimer": "هذه النتائج تقديرية — يرجى تأكيد التواريخ مع مصلحة الموارد البشرية.",
     "results.summary.title": "حاسبة العطل - Permission",
 
@@ -112,6 +113,10 @@ export const strings: Record<Locale, Record<string, string>> = {
     "settings.theme.light": "فاتح",
     "settings.theme.dark": "داكن",
     "settings.theme.auto": "تلقائي",
+    "settings.language": "اللغة",
+    "settings.language.ar": "العربية",
+    "settings.language.fr": "الفرنسية",
+    "settings.reset.desc": "سيؤدي الضغط على هذا الزر إلى مسح جميع بياناتك من هذا الجهاز بشكل نهائي: سجل الحسابات، رصيد العطل السنوي، التذكيرات المجدولة والإعدادات. بعد المزامنة ستبدأ من الصفر، ولا يمكن استرجاع أي من هذه البيانات. تأكد قبل المتابعة.",
 
     "home.holidays.title": "الأعياد الرسمية {year}",
 
@@ -126,8 +131,8 @@ export const strings: Record<Locale, Record<string, string>> = {
     "dashboard.holidays.thisMonth": "أعياد هذا الشهر",
     "dashboard.holidays.nextMonth": "الشهر القادم: {count} أعياد",
     "dashboard.holidays.none": "لا توجد أعياد رسمية هذا الشهر",
+    "dashboard.chartAria": "مخطط الرصيد: {days} يوم إجمالاً",
     "dashboard.upcoming": "القادمة",
-    "dashboard.setEntitlement": "حدد رصيد العطل السنوي للبدء",
     "dashboard.resetData": "مسح كل البيانات",
     "dashboard.resetConfirm": "سيتم مسح كل البيانات (السجل، الرصيد، التذكيرات) بشكل نهائي. هل أنت متأكد؟",
     "dashboard.resetConfirmYes": "نعم، امسح الكل",
@@ -164,22 +169,14 @@ export const strings: Record<Locale, Record<string, string>> = {
     "history.clearConfirmDesc": "سيتم حذف كل السجل بشكل دائم ولا يمكن التراجع عن هذا الإجراء.",
     "common.cancel": "إلغاء",
     "common.close": "إغلاق",
+    "common.dialog": "نافذة منبثقة",
     "common.notifications": "الإشعارات",
     "common.noNotifications": "لا توجد إشعارات بعد",
     "common.push": "إشعارات",
     "common.langSwitch": "الفرنسية",
     "common.dismiss": "تجاهل",
 
-    "entitlement.label.set": "حدد رصيد العطل السنوي",
-    "entitlement.label.edit": "رصيد العطل السنوي (أيام)",
-    "entitlement.placeholder": "مثلاً: 30",
     "entitlement.save": "حفظ",
-    "entitlement.set": "تعيين",
-    "entitlement.edit": "تعديل",
-    "entitlement.used": "المستخدم",
-    "entitlement.remaining": "المتبقي",
-    "entitlement.total": "الإجمالي",
-    "entitlement.label.show": "الرصيد السنوي",
 
     "reminder.dismiss": "تجاهل",
     "reminder.tomorrow": "تاريخ الاستئناف غداً — {date}",
@@ -277,8 +274,6 @@ export const strings: Record<Locale, Record<string, string>> = {
     "leaveRequest.generatedBy": "تم الإنشاء بواسطة Permission — حاسبة العطل",
     "leaveRequest.fail": "تعذر فتح نافذة الطباعة",
 
-    "results.comma": "،",
-
     "share.title": "تفاصيل العطلة",
     "share.body": "📋 تفاصيل العطلة:\n\n• نوع العطلة: {leaveType}\n• تاريخ الخروج: {startDate}\n• المدة: {duration} يوم\n• تاريخ انتهاء العطلة: {returnDate}\n\n✅ تاريخ استئناف العمل: {resumeDate}\n\n⏳ تم الحساب بواسطة تطبيق حاسبة العطل.",
     "share.button": "مشاركة",
@@ -300,12 +295,16 @@ export const strings: Record<Locale, Record<string, string>> = {
     "tab.history": "Historique",
     "tab.calendar": "Calendrier",
     "tab.dashboard": "Tableau de bord",
+    "tab.settings": "Paramètres",
+    "tab.aria": "Navigation entre les onglets",
 
     "calc.duration.label": "Durée du congé (en jours)",
+    "calc.duration.help": "Indiquez le nombre de jours d'absence du travail. La date de retour est calculée à partir de cette durée. Maximum : deux ans (730 jours).",
     "calc.duration.placeholder": "Entrez la durée",
     "calc.duration.error.invalid": "Veuillez entrer une durée valide",
     "calc.duration.error.max": "La durée ne peut pas dépasser 2 ans",
     "calc.date.label": "Date de départ",
+    "calc.date.help": "Choisissez le jour où votre congé commence. Les dates de retour et de reprise sont calculées automatiquement en tenant compte des fêtes nationales et islamiques, avec un avertissement si la date coïncide avec un jour férié.",
     "calc.date.placeholder": "Choisir une date",
     "calc.date.warning": "Attention: cette date est un jour férié",
     "calc.date.error": "Veuillez choisir la date de départ",
@@ -321,9 +320,11 @@ export const strings: Record<Locale, Record<string, string>> = {
     "calc.return.late": "{days} jours de retard",
     "calc.return.onTime": "À l'heure",
     "calc.work.inputLabel": "Jours de travail avant le prochain congé",
+    "calc.work.inputError": "Entrez un nombre de jours valide entre 1 et {max}",
     "calc.work.remaining": "{days} jours de travail restants",
 
     "calc.type.label": "Type de congé",
+    "calc.type.help": "Choisissez le type de congé — il figure dans votre historique et classe vos statistiques dans le tableau de bord.",
     "calc.type.conge": "Congé",
     "calc.type.permission": "Permission",
     "calc.type.convalescence": "Convalescence",
@@ -348,11 +349,6 @@ export const strings: Record<Locale, Record<string, string>> = {
     "results.share.fail": "Échec de la copie",
     "results.save": "Enregistrer",
     "results.saved": "Enregistré ✓",
-    "results.entitlement.used": "Utilisé",
-    "results.entitlement.remaining": "Restant",
-    "results.entitlement.total": "Solde",
-    "results.entitlement.title": "Solde de congés",
-    "results.entitlement.after": "Après ce congé: {days} jours restants",
     "results.disclaimer": "Ces résultats sont indicatifs — veuillez confirmer les dates auprès des RH.",
     "results.summary.title": "Calculateur de congés - Permission",
 
@@ -374,6 +370,10 @@ export const strings: Record<Locale, Record<string, string>> = {
     "settings.theme.light": "Clair",
     "settings.theme.dark": "Sombre",
     "settings.theme.auto": "Auto",
+    "settings.language": "Langue",
+    "settings.language.ar": "العربية",
+    "settings.language.fr": "Français",
+    "settings.reset.desc": "Appuyer sur ce bouton effacera définitivement toutes vos données de cet appareil : l'historique de vos congés, votre solde annuel, vos rappels programmés et vos paramètres. Vous repartirez de zéro et aucune de ces données ne pourra être récupérée. Assurez-vous avant de continuer.",
 
     "home.holidays.title": "Jours fériés {year}",
 
@@ -388,8 +388,8 @@ export const strings: Record<Locale, Record<string, string>> = {
     "dashboard.holidays.thisMonth": "Jours fériés ce mois",
     "dashboard.holidays.nextMonth": "Mois prochain: {count} jours fériés",
     "dashboard.holidays.none": "Aucun jour férié ce mois",
+    "dashboard.chartAria": "Graphique du solde: {days} jours au total",
     "dashboard.upcoming": "À venir",
-    "dashboard.setEntitlement": "Définissez votre solde annuel pour commencer",
     "dashboard.resetData": "Réinitialiser les données",
     "dashboard.resetConfirm": "Toutes les données (historique, solde, rappels) seront définitivement effacées. Êtes-vous sûr ?",
     "dashboard.resetConfirmYes": "Oui, tout effacer",
@@ -426,22 +426,14 @@ export const strings: Record<Locale, Record<string, string>> = {
     "history.clearConfirmDesc": "Tout l'historique sera définitivement supprimé. Cette action est irréversible.",
     "common.cancel": "Annuler",
     "common.close": "Fermer",
+    "common.dialog": "Boîte de dialogue",
     "common.notifications": "Notifications",
     "common.noNotifications": "Pas encore de notifications",
     "common.push": "Push",
     "common.langSwitch": "العربية",
     "common.dismiss": "Ignorer",
 
-    "entitlement.label.set": "Définir le solde annuel de congés",
-    "entitlement.label.edit": "Solde annuel de congés (jours)",
-    "entitlement.placeholder": "Ex: 30",
     "entitlement.save": "Enregistrer",
-    "entitlement.set": "Définir",
-    "entitlement.edit": "Modifier",
-    "entitlement.used": "Utilisé",
-    "entitlement.remaining": "Restant",
-    "entitlement.total": "Total",
-    "entitlement.label.show": "Solde annuel",
 
     "reminder.dismiss": "Ignorer",
     "reminder.tomorrow": "Reprise demain — {date}",
@@ -539,8 +531,6 @@ export const strings: Record<Locale, Record<string, string>> = {
     "leaveRequest.generatedBy": "Généré par Permission — Calculateur de congés",
     "leaveRequest.fail": "Impossible d'ouvrir la fenêtre d'impression",
 
-    "results.comma": ",",
-
     "share.title": "Détails du congé",
     "share.body": "📋 Détails du congé :\n\n• Type de congé : {leaveType}\n• Date de départ : {startDate}\n• Durée : {duration} jours\n• Date de retour : {returnDate}\n\n✅ Date de reprise : {resumeDate}\n\n⏳ Calculé par Permission — Calculateur de congés.",
     "share.button": "Partager",
@@ -559,13 +549,21 @@ export const strings: Record<Locale, Record<string, string>> = {
 };
 
 export function getStoredLocale(): Locale {
-  const v = localStorage.getItem(LOCALE_KEY);
-  if (v === "fr") return "fr";
+  try {
+    const v = localStorage.getItem(LOCALE_KEY);
+    if (v === "fr") return "fr";
+  } catch {
+    // Storage unavailable — fall through to default.
+  }
   return "ar";
 }
 
 export function setStoredLocale(l: Locale): void {
-  localStorage.setItem(LOCALE_KEY, l);
+  try {
+    localStorage.setItem(LOCALE_KEY, l);
+  } catch {
+    // Storage unavailable (private mode, quota) — fail silently.
+  }
 }
 
 let currentLocale: Locale = getStoredLocale();

@@ -36,12 +36,20 @@ export function Onboarding() {
   const isRTL = getLocale() === "ar";
 
   useEffect(() => {
-    const seen = localStorage.getItem(ONBOARDING_KEY);
-    if (!seen) setVisible(true);
+    try {
+      const seen = localStorage.getItem(ONBOARDING_KEY);
+      if (!seen) setVisible(true);
+    } catch {
+      // Storage unavailable — show onboarding anyway.
+    }
   }, []);
 
   const dismiss = useCallback(() => {
-    localStorage.setItem(ONBOARDING_KEY, "1");
+    try {
+      localStorage.setItem(ONBOARDING_KEY, "1");
+    } catch {
+      // Storage unavailable — ignore.
+    }
     setVisible(false);
   }, []);
 
@@ -50,7 +58,26 @@ export function Onboarding() {
     const el = panelRef.current;
     if (el) el.focus();
     const handleKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") dismiss();
+      if (e.key === "Escape") {
+        dismiss();
+        return;
+      }
+      if (e.key !== "Tab" || !el) return;
+      const focusables = Array.from(
+        el.querySelectorAll<HTMLElement>(
+          'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        )
+      ).filter((n) => n.offsetParent !== null);
+      if (focusables.length === 0) return;
+      const first = focusables[0]!;
+      const last = focusables[focusables.length - 1]!;
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
     };
     document.body.style.overflow = "hidden";
     window.addEventListener("keydown", handleKey);
@@ -90,6 +117,7 @@ export function Onboarding() {
       role="dialog"
       aria-modal="true"
       aria-label={t("onboarding.aria")}
+      data-swipe-lock
     >
       <div className="flex items-center justify-between px-4 h-14 shrink-0">
         <button

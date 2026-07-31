@@ -13,6 +13,7 @@ interface State {
 
 export class ErrorBoundary extends Component<Props, State> {
   state: State = { error: null };
+  private resetKey = 0;
 
   static getDerivedStateFromError(error: Error) {
     return { error };
@@ -23,6 +24,7 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   handleReset = () => {
+    this.resetKey += 1;
     this.setState({ error: null });
   };
 
@@ -37,6 +39,6 @@ export class ErrorBoundary extends Component<Props, State> {
         </div>
       );
     }
-    return this.props.children;
+    return <div key={this.resetKey}>{this.props.children}</div>;
   }
 }

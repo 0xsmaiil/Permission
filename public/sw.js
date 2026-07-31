@@ -1,4 +1,11 @@
-const CACHE_NAME = 'permission-v1';
+const CACHE_NAME = 'permission-v4';
+const FONT_CACHE_NAME = 'permission-fonts-v1';
+const FONT_ORIGINS = [
+  'fonts.googleapis.com',
+  'fonts.gstatic.com',
+  'api.fontshare.com',
+  'cdn.fontshare.com',
+];
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();
@@ -17,7 +24,7 @@ self.addEventListener('install', (event) => {
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) =>
-      Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k)))
+      Promise.all(keys.filter((k) => k !== CACHE_NAME && k !== FONT_CACHE_NAME).map((k) => caches.delete(k)))
     ).then(() => self.clients.claim())
   );
 });
@@ -38,6 +45,28 @@ self.addEventListener('fetch', (event) => {
         .catch(() =>
           caches.match(event.request).then((cached) => cached || caches.match('/offline.html'))
         )
+    );
+    return;
+  }
+
+  const isFontRequest =
+    event.request.destination === 'font' ||
+    FONT_ORIGINS.some((origin) => url.hostname === origin || url.hostname.endsWith('.' + origin));
+
+  if (isFontRequest) {
+    event.respondWith(
+      caches.open(FONT_CACHE_NAME).then((cache) =>
+        cache.match(event.request).then((cached) => {
+          if (cached) return cached;
+          return fetch(event.request).then((response) => {
+            if (response.ok) {
+              const clone = response.clone();
+              cache.put(event.request, clone);
+            }
+            return response;
+          });
+        })
+      )
     );
     return;
   }
@@ -138,20 +167,10 @@ self.addEventListener('notificationclick', (event) => {
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then((list) => {
       for (const client of list) {
         if (client.url.includes(self.location.origin) && 'focus' in client) {
-          client.postMessage({
-            type: 'PUSH_RECEIVED',
-            title: event.notification.title,
-            body: event.notification.body,
-            timestamp: Date.now(),
-          });
           return client.focus();
         }
       }
-      const params = new URLSearchParams({
-        nTitle: encodeURIComponent(event.notification.title),
-        nBody: encodeURIComponent(event.notification.body),
-      });
-      return clients.openWindow(`${targetUrl}?${params.toString()}`);
+      return clients.openWindow(targetUrl);
     })
   );
 });

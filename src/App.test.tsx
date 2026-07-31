@@ -29,7 +29,7 @@ describe("App smoke", () => {
 
   it("renders the app bar title", () => {
     render(<App />);
-    const heading = screen.getByRole("heading");
+    const heading = screen.getByRole("heading", { level: 1 });
     expect(heading.textContent).toBe("Permission");
   });
 
@@ -47,27 +47,32 @@ describe("App smoke", () => {
     const user = userEvent.setup();
     render(<App />);
 
+    const tabs = screen.getAllByRole("tab");
+    await user.click(tabs[2] as HTMLElement);
+
     const initialDir = document.documentElement.dir;
-    const toggle = screen.getByLabelText(/Français|العربية/);
+    const toggle = screen.getByRole("button", { name: "الفرنسية" });
     await user.click(toggle);
 
     expect(document.documentElement.dir).not.toBe(initialDir);
   });
 
-  it("cycles the theme (dark class toggle)", async () => {
+  it("selects the theme (dark class toggle)", async () => {
     const user = userEvent.setup();
     render(<App />);
 
-    const themeBtn = screen.getByLabelText("المظهر");
-    await user.click(themeBtn);
+    const tabs = screen.getAllByRole("tab");
+    await user.click(tabs[2] as HTMLElement);
+
+    await user.click(screen.getByRole("button", { name: "داكن" }));
     expect(document.documentElement.classList.contains("dark")).toBe(true);
     expect(getStoredTheme()).toBe("dark");
 
-    await user.click(themeBtn);
+    await user.click(screen.getByRole("button", { name: "تلقائي" }));
     expect(document.documentElement.classList.contains("dark")).toBe(false);
     expect(getStoredTheme()).toBe("auto");
 
-    await user.click(themeBtn);
+    await user.click(screen.getByRole("button", { name: "فاتح" }));
     expect(document.documentElement.classList.contains("dark")).toBe(false);
     expect(getStoredTheme()).toBe("light");
   });

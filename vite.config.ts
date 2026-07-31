@@ -10,7 +10,7 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "VITE_");
   for (const key of REQUIRED_ENV_VARS) {
     if (!env[key]) {
-      throw new Error(`Missing required env var: ${key}. Check your .env file.`);
+      console.warn(`[vite] Missing env var: ${key}. Supabase features (push notifications) will be disabled; the app still works offline.`);
     }
   }
 
@@ -35,15 +35,18 @@ plugins: [
           start_url: "/",
           display: "standalone",
           orientation: "portrait",
-          theme_color: "#eab308",
-          background_color: "#eab308",
+          theme_color: "#ffffff",
+          background_color: "#ffffff",
           lang: "ar",
           dir: "rtl",
           icons: [
             { src: "/pwa-192x192.png", sizes: "192x192", type: "image/png", purpose: "any" },
             { src: "/pwa-512x512.png", sizes: "512x512", type: "image/png", purpose: "any" },
+            { src: "/pwa-maskable-192x192.png", sizes: "192x192", type: "image/png", purpose: "maskable" },
+            { src: "/pwa-maskable-512x512.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
           ],
         },
+        includeAssets: ["finallogo.png", "favicon-64x64.png", "apple-touch-icon.png"],
         devOptions: {
           enabled: true,
           navigateFallback: "index.html",

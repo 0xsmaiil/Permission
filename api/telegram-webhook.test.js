@@ -153,4 +153,24 @@ describe("telegram-webhook authorization", () => {
     await handler(req({ secret: SECRET, body: {} }), res);
     expect([200, 500]).toContain(res.statusCode);
   });
+
+  it("handles a body passed as a JSON string (raw body), not pre-parsed", async () => {
+    setEnv(fullEnv);
+    const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValue({ ok: true });
+    const res = mockRes();
+    await handler(
+      req({ secret: SECRET, body: JSON.stringify({ message: { chat: { id: 12345 }, text: "/broadcast hi" } }) }),
+      res,
+    );
+    expect([200, 500]).toContain(res.statusCode);
+    expect(fetchSpy).not.toHaveBeenCalled();
+  });
+
+  it("rejects an invalid JSON string body with 400", async () => {
+    setEnv(fullEnv);
+    const res = mockRes();
+    await handler(req({ secret: SECRET, body: "not-json{{{" }), res);
+    expect(res.statusCode).toBe(400);
+    expect(res.payload).toEqual({ error: "Invalid JSON body" });
+  });
 });

@@ -1,7 +1,15 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 const THEME_KEY = "permission-theme";
 export type Theme = "light" | "dark" | "auto";
+
+function safeSet(key: string, value: string): void {
+  try {
+    localStorage.setItem(key, value);
+  } catch {
+    // Storage unavailable (private mode, quota) — fail silently.
+  }
+}
 
 function applyTheme(theme: Theme) {
   const root = document.documentElement;
@@ -16,13 +24,17 @@ function applyTheme(theme: Theme) {
 }
 
 export function getStoredTheme(): Theme {
-  const v = localStorage.getItem(THEME_KEY);
-  if (v === "dark" || v === "auto") return v;
+  try {
+    const v = localStorage.getItem(THEME_KEY);
+    if (v === "dark" || v === "auto") return v;
+  } catch {
+    // Storage unavailable — fall through to default.
+  }
   return "light";
 }
 
 export function setTheme(theme: Theme): void {
-  localStorage.setItem(THEME_KEY, theme);
+  safeSet(THEME_KEY, theme);
   applyTheme(theme);
 }
 
@@ -45,5 +57,9 @@ export function useTheme(): [Theme, (t: Theme) => void] {
     mq.addEventListener("change", handler);
     return () => mq.removeEventListener("change", handler);
   }, []);
-  return [theme, setTheme];
+  const update = useCallback((t: Theme) => {
+    setThemeState(t);
+    setTheme(t);
+  }, []);
+  return [theme, update];
 }

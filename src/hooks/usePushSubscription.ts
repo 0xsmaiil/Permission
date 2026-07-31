@@ -28,20 +28,40 @@ export function usePushSubscription() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const flag = localStorage.getItem(LOCAL_FLAG);
-      if (flag === "true") {
-        // If the flag says subscribed but the browser has no active push
-        // subscription (VAPID rotation, cleared data, etc.), reset the flag
-        // so the user sees the gate and can re-subscribe.
-        if ("Notification" in window && Notification.permission !== "granted") {
-          localStorage.removeItem(LOCAL_FLAG);
-        } else {
-          setIsSubscribed(true);
-          setPermissionState("granted");
-        }
-      }
+    if (typeof window === "undefined") return;
+    let flag: string | null = null;
+    try {
+      flag = localStorage.getItem(LOCAL_FLAG);
+    } catch {
+      // Storage unavailable — ignore.
     }
+    if (flag !== "true") return;
+    // If the flag says subscribed but there is no active push subscription
+    // (VAPID rotation, cleared data, etc.), reset the flag so the user sees
+    // the gate and can re-subscribe.
+    const verify = async () => {
+      try {
+        if (!("Notification" in window) || Notification.permission !== "granted") {
+          localStorage.removeItem(LOCAL_FLAG);
+          return;
+        }
+        if (!("serviceWorker" in navigator) || !("PushManager" in window)) {
+          localStorage.removeItem(LOCAL_FLAG);
+          return;
+        }
+        const registration = await navigator.serviceWorker.ready;
+        const subscription = await registration.pushManager.getSubscription();
+        if (!subscription) {
+          localStorage.removeItem(LOCAL_FLAG);
+          return;
+        }
+        setIsSubscribed(true);
+        setPermissionState("granted");
+      } catch {
+        localStorage.removeItem(LOCAL_FLAG);
+      }
+    };
+    void verify();
   }, []);
 
   const subscribe = useCallback(async () => {
