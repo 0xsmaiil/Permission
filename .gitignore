@@ -26,6 +26,12 @@ dist-ssr
 *.sw?
 opencode.json
 
+# Agent artifacts
+.opencode/
+CHECKPOINT.md
+task.md
+*.ps1
+
 # Screenshots and scratch images land in the project root by accident.
 # PWA icons under public/ are intentionally tracked (see negations below).
 /*.png

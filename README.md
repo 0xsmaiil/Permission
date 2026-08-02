@@ -1,32 +1,73 @@
-# React + TypeScript + Vite
+# Permission
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+An Algerian leave calculator built as a mobile-first Progressive Web App. Calculate annual leave entitlements with automatic handling of Algerian public holidays, and get reminders via push notifications.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **Leave calculator** — computes annual leave based on hire date and work schedule, accounting for Algerian public holidays.
+- **Dashboard** — overview of remaining leave, history, and upcoming entitlements.
+- **Notifications** — opt-in push reminders (web push + Supabase), with an in-app permission gate and notification bell.
+- **Bilingual UI** — supports Arabic and French with right-to-left layout.
+- **Theme support** — light/dark mode.
+- **Installable PWA** — full-screen install landing page for Android and iOS, offline support via service worker.
 
-## React Compiler
+## Tech Stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- [React 19](https://react.dev) + [TypeScript](https://www.typescriptlang.org)
+- [Vite](https://vite.dev) with `vite-plugin-pwa`
+- [Tailwind CSS v4](https://tailwindcss.com)
+- [Supabase](https://supabase.com) (backend) + [web-push](https://github.com/web-push-libs/web-push) (notifications)
+- Telegram bot (admin)
+- [Vitest](https://vitest.dev) for tests, [oxlint](https://oxc.rs/docs/guide/usage/linter/rules) for linting
+- Deployed on [Vercel](https://vercel.com)
 
-## Expanding the Oxlint configuration
+## Getting Started
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
+Requirements: Node.js >= 20.19.
 
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```bash
+npm install
+npm run dev
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+## Available Scripts
+
+| Script              | Description                          |
+| ------------------- | ------------------------------------ |
+| `npm run dev`       | Start the Vite dev server            |
+| `npm run build`     | Lint, typecheck, and production build |
+| `npm run preview`   | Preview the production build         |
+| `npm run test`      | Run the test suite (Vitest)          |
+| `npm run lint`      | Lint with oxlint                     |
+| `npm run typecheck` | Type-check with `tsc -b`             |
+
+## Project Structure
+
+```
+src/
+  components/   UI components (tabs, install page, push gate, ...)
+  hooks/        React hooks (PWA install, push subscription, swipe, ...)
+  lib/          Utilities (dates, holidays, storage, i18n, notifications, ...)
+  App.tsx       Root component: routes between install landing and the main app
+```
+
+## Configuration
+
+Environment variables are loaded from `.env` / `.env.local`:
+
+- Supabase credentials used by `src/lib/supabaseClient.ts`
+- Web push VAPID keys for the notification service
+
+See `.env.example` (if present) for the expected variables.
+
+## Testing
+
+The test suite covers holiday calculations, date utilities, local storage, and push subscription behavior:
+
+```bash
+npm run test
+```
+
+## License
+
+Private project.
