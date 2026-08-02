@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { CheckCircle, X } from "@phosphor-icons/react";
 import { subscribe } from "@/lib/toast";
 import { useT } from "@/lib/i18n";
@@ -6,15 +6,22 @@ import { useT } from "@/lib/i18n";
 export function ToastContainer() {
   const t = useT();
   const [items, setItems] = useState<Array<{ id: number; message: string }>>([]);
+  const timersRef = useRef<Map<number, ReturnType<typeof setTimeout>>>(new Map());
 
   useEffect(() => {
     const unsub = subscribe((toast) => {
       setItems((prev) => [...prev, toast]);
-      setTimeout(() => {
+      const timer = setTimeout(() => {
+        timersRef.current.delete(toast.id);
         setItems((prev) => prev.filter((item) => item.id !== toast.id));
       }, 2500);
+      timersRef.current.set(toast.id, timer);
     });
-    return unsub;
+    return () => {
+      unsub();
+      timersRef.current.forEach((timer) => clearTimeout(timer));
+      timersRef.current.clear();
+    };
   }, []);
 
   if (items.length === 0) return null;

@@ -4,6 +4,14 @@ import { t } from "../lib/i18n";
 
 const LOCAL_FLAG = "push_subscribed";
 
+function safeRemoveFlag(): void {
+  try {
+    localStorage.removeItem(LOCAL_FLAG);
+  } catch {
+    // Storage unavailable (private mode, quota) — fail silently.
+  }
+}
+
 function urlBase64ToUint8Array(base64String: string): ArrayBuffer {
   const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
   const base64 = (base64String + padding).replace(/-/g, "+").replace(/_/g, "/");
@@ -42,23 +50,23 @@ export function usePushSubscription() {
     const verify = async () => {
       try {
         if (!("Notification" in window) || Notification.permission !== "granted") {
-          localStorage.removeItem(LOCAL_FLAG);
+          safeRemoveFlag();
           return;
         }
         if (!("serviceWorker" in navigator) || !("PushManager" in window)) {
-          localStorage.removeItem(LOCAL_FLAG);
+          safeRemoveFlag();
           return;
         }
         const registration = await navigator.serviceWorker.ready;
         const subscription = await registration.pushManager.getSubscription();
         if (!subscription) {
-          localStorage.removeItem(LOCAL_FLAG);
+          safeRemoveFlag();
           return;
         }
         setIsSubscribed(true);
         setPermissionState("granted");
       } catch {
-        localStorage.removeItem(LOCAL_FLAG);
+        safeRemoveFlag();
       }
     };
     void verify();
@@ -67,6 +75,8 @@ export function usePushSubscription() {
   const subscribe = useCallback(async () => {
     setError(null);
     setPermissionState("loading");
+
+    let swTimer: ReturnType<typeof setTimeout> | undefined;
 
     try {
       if (!supabase) {
@@ -87,13 +97,14 @@ export function usePushSubscription() {
         return false;
       }
 
-      const swReadyTimeout = new Promise<never>((_, reject) =>
-        setTimeout(() => reject(new Error(t("pushGate.error.sw"))), 15000),
-      );
+      const swReadyTimeout = new Promise<never>((_, reject) => {
+        swTimer = setTimeout(() => reject(new Error(t("pushGate.error.sw"))), 15000);
+      });
       const registration = await Promise.race([
         navigator.serviceWorker.ready,
         swReadyTimeout,
       ]);
+      clearTimeout(swTimer);
 
       let subscription = await registration.pushManager.getSubscription();
       if (!subscription) {
@@ -107,7 +118,8 @@ export function usePushSubscription() {
       }
 
       const subJson = subscription.toJSON();
-      const endpoint = subJson.endpoint!;
+      const endpoint = subJson.endpoint;
+      if (!endpoint) throw new Error(t("pushGate.error.unexpected"));
       const p256dh = subJson.keys?.p256dh ?? "";
       const auth = subJson.keys?.auth ?? "";
 
@@ -122,11 +134,16 @@ export function usePushSubscription() {
       // subscribed from this browser. Treat it as success.
       if (dbError && dbError.code !== "23505") throw new Error(dbError.message);
 
-      localStorage.setItem(LOCAL_FLAG, "true");
+      try {
+        localStorage.setItem(LOCAL_FLAG, "true");
+      } catch {
+        // Storage unavailable (private mode, quota) — still report success.
+      }
       setIsSubscribed(true);
       setPermissionState("granted");
       return true;
     } catch (err: unknown) {
+      clearTimeout(swTimer);
       const message = err instanceof Error ? err.message : t("pushGate.error.unexpected");
       setError(message);
       setPermissionState("error");

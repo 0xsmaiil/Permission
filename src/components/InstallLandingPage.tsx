@@ -18,6 +18,13 @@ export function InstallLandingPage({ deferredPrompt }: Props) {
   const [infoMessage, setInfoMessage] = useState<string | null>(null);
   const [progress, setProgress] = useState(0);
   const progressRef = useRef<number>(0);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
+  }, []);
 
   useEffect(() => {
 
@@ -64,6 +71,7 @@ export function InstallLandingPage({ deferredPrompt }: Props) {
     setInstallStatus("installing");
     setProgress(0);
     progressRef.current = 0;
+    if (intervalRef.current) clearInterval(intervalRef.current);
     const startTime = performance.now();
     const interval = setInterval(() => {
       const elapsed = performance.now() - startTime;
@@ -72,9 +80,11 @@ export function InstallLandingPage({ deferredPrompt }: Props) {
       setProgress(next);
       if (next >= 100) {
         clearInterval(interval);
+        intervalRef.current = null;
         setInstallStatus("installed");
       }
     }, 50);
+    intervalRef.current = interval;
   };
 
   const buttonContent = () => {

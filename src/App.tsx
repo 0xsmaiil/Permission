@@ -41,10 +41,11 @@ function App() {
   }, []);
 
   useEffect(() => {
-    if ("Notification" in window && Notification.permission === "granted") {
-      startReminderScheduler();
-    }
-  }, []);
+    if (!isStandalone) return;
+    // checkReminders self-gates on Notification.permission, so this also works
+    // when the permission is granted after mount (first-run push gate).
+    return startReminderScheduler();
+  }, [isStandalone]);
 
   const { onTouchStart, onTouchEnd } = useSwipe({
     onSwipeLeft: () => setActiveTab((prev) => Math.min(prev + 1, 2)),
@@ -54,8 +55,7 @@ function App() {
   const lockedTouchRef = useRef(false);
 
   const guardedTouchStart = useCallback((e: React.TouchEvent) => {
-    const target = e.target as HTMLElement;
-    if (target.closest("[data-swipe-lock]")) {
+    if (e.target instanceof Element && e.target.closest("[data-swipe-lock]")) {
       lockedTouchRef.current = true;
       return;
     }

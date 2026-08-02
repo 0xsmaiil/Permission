@@ -43,6 +43,8 @@
   --color-popover: #ffffff;
   --color-popover-foreground: var(--color-surface-900);
   --color-border: var(--color-surface-200);
+  --color-input: var(--color-border);
+  --color-ring: var(--color-primary-500);
   --color-muted: var(--color-surface-100);
   --color-muted-foreground: var(--color-surface-600);
   --color-accent: var(--color-primary-100);
@@ -125,19 +127,11 @@ body {
   display: none;
 }
 
-@keyframes wave-slide {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-64px); }
-}
-
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
 
 .spin { animation: spin 1s linear infinite; }
-
-.animate-wave-surface { animation: wave-slide 2s linear infinite; }
-.animate-wave-under { animation: wave-slide 3s linear infinite; }
 
 .safe-bottom {
   padding-bottom: env(safe-area-inset-bottom, 0px);

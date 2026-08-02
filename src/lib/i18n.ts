@@ -31,7 +31,7 @@ const LOCALE_KEY = "permission-locale";
 
 export type Locale = "ar" | "fr";
 
-export const strings: Record<Locale, Record<string, string>> = {
+const strings: Record<Locale, Record<string, string>> = {
   ar: {
     "tab.home": "الرئيسية",
     "tab.calc": "الحاسبة",

@@ -53,7 +53,3 @@ export function markAllRead(): void {
 export function getUnreadCount(): number {
   return getNotifications().filter((n) => !n.read).length;
 }
-
-export function clearNotifications(): void {
-  localStorage.removeItem(NOTIF_KEY);
-}

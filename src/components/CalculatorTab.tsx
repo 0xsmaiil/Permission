@@ -29,6 +29,21 @@ interface Props {
   active?: boolean;
 }
 
+interface NextLeaveSummary {
+  id: string;
+  departureDate: string;
+  returnDate: string;
+  leaveType: string;
+  durationDays: number;
+  actualReturnDate?: string;
+}
+
+type LeaveInfo =
+  | { phase: "upcoming"; daysUntilLeave: number; leave: NextLeaveSummary }
+  | { phase: "active"; progress: number; daysUntilReturn: number; leave: NextLeaveSummary }
+  | { phase: "overdue"; lateDays: number; leave: NextLeaveSummary }
+  | { phase: "working"; remaining: number; leave: NextLeaveSummary };
+
 export function CalculatorTab({ loadData, onDataLoaded, onHistoryChange, active = true }: Props) {
   const t = useT();
   const dfnsLocale = getDateFnsLocale();
@@ -160,7 +175,7 @@ export function CalculatorTab({ loadData, onDataLoaded, onHistoryChange, active 
     return future[0] ?? null;
   }, [refreshKey]);
 
-  const leaveInfo = useMemo(() => {
+  const leaveInfo = useMemo<LeaveInfo | null>(() => {
     if (!nextLeave) return null;
     const now = new Date();
     const dep = new Date(nextLeave.departureDate + "T00:00:00");
@@ -171,21 +186,21 @@ export function CalculatorTab({ loadData, onDataLoaded, onHistoryChange, active 
       dayAfterReturn.setDate(dayAfterReturn.getDate() + 1);
       const daysSinceWorkStart = differenceInCalendarDays(now, dayAfterReturn);
       const remaining = nextLeave.workDays - daysSinceWorkStart;
-      return { phase: "working" as const, remaining, leave: nextLeave };
+      return { phase: "working", remaining, leave: nextLeave };
     }
     if (now < dep) {
       const daysUntilLeave = Math.ceil((dep.getTime() - now.getTime()) / 86400000);
-      return { phase: "upcoming" as const, daysUntilLeave, leave: nextLeave };
+      return { phase: "upcoming", daysUntilLeave, leave: nextLeave };
     }
     if (now >= ret) {
       const lateDays = differenceInCalendarDays(now, ret);
-      return { phase: "overdue" as const, lateDays, leave: nextLeave };
+      return { phase: "overdue", lateDays, leave: nextLeave };
     }
     const totalMs = ret.getTime() - dep.getTime();
     const elapsed = Math.max(0, now.getTime() - dep.getTime());
     const progress = Math.min(elapsed / totalMs, 1);
     const daysUntilReturn = Math.max(0, Math.ceil((ret.getTime() - now.getTime()) / 86400000));
-    return { phase: "active" as const, progress, daysUntilReturn, leave: nextLeave };
+    return { phase: "active", progress, daysUntilReturn, leave: nextLeave };
   }, [nextLeave]);
 
 
@@ -213,7 +228,7 @@ export function CalculatorTab({ loadData, onDataLoaded, onHistoryChange, active 
                 setDuration(v);
               }
             }}
-            className="h-12 text-base bg-muted/50 border-border/80 rounded-xl focus-visible:ring-primary-500/20"
+            className="h-12 text-base bg-card border-border rounded-xl focus-visible:ring-primary-500/20"
           />
         </div>
 
@@ -225,7 +240,7 @@ export function CalculatorTab({ loadData, onDataLoaded, onHistoryChange, active 
               render={
                 <Button
                   variant="outline"
-                  className="w-full h-12 justify-start text-left font-normal bg-muted/50 border-border/80 rounded-xl hover:bg-muted/80"
+                  className="w-full h-12 justify-start text-left font-normal bg-card border-border rounded-xl hover:bg-muted/60"
                   aria-describedby="date-help"
                 >
                   <CalendarBlank className="me-2.5 h-[18px] w-[18px] text-muted-foreground" />
@@ -440,7 +455,7 @@ function LeaveRange({ dep, ret, locale }: { dep: Date; ret: Date; locale: Return
 }
 
 function NextLeaveCard({ leaveInfo, t, dfnsLocale, onConfirmReturn, active = true }: {
-  leaveInfo: { phase: "upcoming" | "active" | "overdue" | "working"; progress?: number; daysUntilLeave?: number; daysUntilReturn?: number; lateDays?: number; remaining?: number; leave: { id: string; departureDate: string; returnDate: string; leaveType: string; durationDays: number; actualReturnDate?: string } };
+  leaveInfo: LeaveInfo;
   t: ReturnType<typeof useT>;
   dfnsLocale: ReturnType<typeof getDateFnsLocale>;
   onConfirmReturn: (id: string, workDays: number) => void;
@@ -449,8 +464,8 @@ function NextLeaveCard({ leaveInfo, t, dfnsLocale, onConfirmReturn, active = tru
   const { phase, leave } = leaveInfo;
   const dep = new Date(leave.departureDate + "T00:00:00");
   const ret = new Date(leave.returnDate + "T00:00:00");
-  const countdown = phase === "active" ? leaveInfo.daysUntilReturn! : (phase === "upcoming" ? leaveInfo.daysUntilLeave! : (phase === "overdue" ? leaveInfo.lateDays! : leaveInfo.remaining!));
-  const targetPct = Math.round((phase === "active" ? (leaveInfo.progress ?? 0) : phase === "overdue" ? 1 : 0) * 100);
+  const countdown = phase === "active" ? leaveInfo.daysUntilReturn : phase === "upcoming" ? leaveInfo.daysUntilLeave : phase === "overdue" ? leaveInfo.lateDays : leaveInfo.remaining;
+  const targetPct = Math.round((phase === "active" ? leaveInfo.progress : phase === "overdue" ? 1 : 0) * 100);
   const [displayPct, setDisplayPct] = useState(0);
   const rafRef = useRef(0);
   const shownPctRef = useRef(0);

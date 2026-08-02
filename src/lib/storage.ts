@@ -222,14 +222,3 @@ export function getCustomHolidays(): CustomHoliday[] {
     return [];
   }
 }
-
-export function addCustomHoliday(name: string, date: string): void {
-  const list = getCustomHolidays();
-  list.push({ id: safeUuid(), name, date });
-  safeSet(CUSTOM_HOLIDAY_KEY, JSON.stringify(list));
-}
-
-export function removeCustomHoliday(id: string): void {
-  const list = getCustomHolidays().filter((h) => h.id !== id);
-  safeSet(CUSTOM_HOLIDAY_KEY, JSON.stringify(list));
-}

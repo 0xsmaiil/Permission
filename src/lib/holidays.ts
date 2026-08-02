@@ -121,7 +121,7 @@ export function getRamadanDatesForYear(gregorianYear: number): Date[] {
   return dates;
 }
 
-export function getRamadanRangesForYear(gregorianYear: number): { start: Date; end: Date }[] {
+function getRamadanRangesForYear(gregorianYear: number): { start: Date; end: Date }[] {
   const islamicYear = Math.round((gregorianYear - 622) * 1.03125);
   const ranges: { start: Date; end: Date }[] = [];
 
@@ -142,7 +142,8 @@ export function getRamadanRangesForYear(gregorianYear: number): { start: Date; e
 }
 
 export function getCachedHolidaysForYear(year: number): Holiday[] {
-  if (yearCache.has(year)) return yearCache.get(year)!;
+  const cached = yearCache.get(year);
+  if (cached) return cached;
   const fixed: Holiday[] = FIXED_HOLIDAYS.map((h) => ({
     name: h.name,
     date: `${year}-${String(h.month).padStart(2, "0")}-${String(h.day).padStart(2, "0")}`,

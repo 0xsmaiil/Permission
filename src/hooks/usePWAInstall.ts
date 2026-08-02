@@ -56,10 +56,5 @@ export function usePWAInstall() {
     return () => mediaQuery.removeEventListener("change", checkStandalone);
   }, []);
 
-  const clearPrompt = () => {
-    _deferredPrompt = null;
-    setDeferredPrompt(null);
-  };
-
-  return { isStandalone, deferredPrompt, clearPrompt };
+  return { isStandalone, deferredPrompt };
 }

@@ -55,13 +55,24 @@ function getReminderBody(type: "departure" | "resume", daysUntil: number, dateSt
   }
   if (type === "departure") {
     if (daysUntil === 0) return `الذهاب اليوم (${dateStr})`;
+    if (daysUntil === 1) return `الذهاب غداً (${dateStr})`;
     return `الذهاب بعد ${daysUntil} أيام (${dateStr})`;
   }
   if (daysUntil === 0) return `العودة اليوم (${dateStr})`;
+  if (daysUntil === 1) return `العودة غداً (${dateStr})`;
   return `العودة بعد ${daysUntil} أيام (${dateStr})`;
 }
 
 export async function checkReminders(): Promise<void> {
+  try {
+    if (typeof window === "undefined") return;
+    await checkRemindersInner();
+  } catch (err) {
+    console.error("[reminders] check failed:", err);
+  }
+}
+
+async function checkRemindersInner(): Promise<void> {
   const now = new Date();
   if (now.getHours() < 10) return;
 
@@ -103,7 +114,8 @@ export async function checkReminders(): Promise<void> {
   }
 }
 
-export function startReminderScheduler(): void {
-  checkReminders();
-  setInterval(checkReminders, 60000);
+export function startReminderScheduler(): () => void {
+  void checkReminders();
+  const id = setInterval(() => void checkReminders(), 60000);
+  return () => clearInterval(id);
 }
