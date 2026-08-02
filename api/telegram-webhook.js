@@ -144,7 +144,7 @@ export default async function handler(req, res) {
     }
 
     const payload = JSON.stringify({
-      title: "Permission",
+      title: "0xSmail",
       body: broadcastMessage,
       dir: "auto",
       lang: "en",
