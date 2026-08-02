@@ -10,20 +10,27 @@ interface SwipeOptions {
 export function useSwipe({ onSwipeLeft, onSwipeRight, onSwipeDown, threshold = 60 }: SwipeOptions) {
   const startX = useRef(0);
   const startY = useRef(0);
+  const started = useRef(false);
+  const consumed = useRef(false);
 
   const onTouchStart = useCallback((e: TouchEvent) => {
-    startX.current = e.touches[0].clientX;
-    startY.current = e.touches[0].clientY;
+    const touch = e.touches[0];
+    if (!touch) return;
+    startX.current = touch.clientX;
+    startY.current = touch.clientY;
+    started.current = true;
+    consumed.current = false;
   }, []);
 
   const onTouchMove = useCallback(
     (e: TouchEvent) => {
-      if (startY.current === 0 || !onSwipeDown) return;
-      const dy = e.touches[0].clientY - startY.current;
+      if (!started.current || consumed.current || !onSwipeDown) return;
+      const touch = e.touches[0];
+      if (!touch) return;
+      const dy = touch.clientY - startY.current;
       if (dy > threshold) {
+        consumed.current = true;
         onSwipeDown();
-        startX.current = 0;
-        startY.current = 0;
       }
     },
     [onSwipeDown, threshold],
@@ -31,17 +38,20 @@ export function useSwipe({ onSwipeLeft, onSwipeRight, onSwipeDown, threshold = 6
 
   const onTouchEnd = useCallback(
     (e: TouchEvent) => {
-      const endX = e.changedTouches[0].clientX;
-      const endY = e.changedTouches[0].clientY;
-      const dx = endX - startX.current;
-      const dy = endY - startY.current;
+      const touch = e.changedTouches[0];
+      const wasStarted = started.current;
+      started.current = false;
+      if (!touch || !wasStarted || consumed.current) return;
+
+      const dx = touch.clientX - startX.current;
+      const dy = touch.clientY - startY.current;
 
       if (Math.abs(dx) < threshold || Math.abs(dy) > Math.abs(dx)) return;
 
       if (dx > 0) onSwipeRight?.();
       else onSwipeLeft?.();
     },
-    [onSwipeLeft, onSwipeRight, threshold]
+    [onSwipeLeft, onSwipeRight, threshold],
   );
 
   return { onTouchStart, onTouchMove, onTouchEnd };

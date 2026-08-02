@@ -43,6 +43,8 @@ export function NotificationBell() {
   const t = useT();
   const panelRef = useRef<HTMLDivElement>(null);
   const prevOpen = useRef(open);
+  const openRef = useRef(open);
+  openRef.current = open;
 
   const recalcBadge = useCallback(() => {
     const unread = getUnreadCount();
@@ -78,6 +80,10 @@ export function NotificationBell() {
       const unread = getUnreadCount();
       const reminders = loadActiveReminders();
       setBadgeCount(unread + reminders.length);
+      if (openRef.current) {
+        setNotifs(getNotifications());
+        setReminderEntries(loadActiveReminders());
+      }
     }
     update();
     const handler = () => update();

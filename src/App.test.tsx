@@ -51,7 +51,7 @@ describe("App smoke", () => {
     await user.click(tabs[2] as HTMLElement);
 
     const initialDir = document.documentElement.dir;
-    const toggle = screen.getByRole("button", { name: "الفرنسية" });
+    const toggle = await screen.findByRole("button", { name: "الفرنسية" });
     await user.click(toggle);
 
     expect(document.documentElement.dir).not.toBe(initialDir);
@@ -64,15 +64,15 @@ describe("App smoke", () => {
     const tabs = screen.getAllByRole("tab");
     await user.click(tabs[2] as HTMLElement);
 
-    await user.click(screen.getByRole("button", { name: "داكن" }));
+    await user.click(await screen.findByRole("button", { name: "داكن" }));
     expect(document.documentElement.classList.contains("dark")).toBe(true);
     expect(getStoredTheme()).toBe("dark");
 
-    await user.click(screen.getByRole("button", { name: "تلقائي" }));
+    await user.click(await screen.findByRole("button", { name: "تلقائي" }));
     expect(document.documentElement.classList.contains("dark")).toBe(false);
     expect(getStoredTheme()).toBe("auto");
 
-    await user.click(screen.getByRole("button", { name: "فاتح" }));
+    await user.click(await screen.findByRole("button", { name: "فاتح" }));
     expect(document.documentElement.classList.contains("dark")).toBe(false);
     expect(getStoredTheme()).toBe("light");
   });

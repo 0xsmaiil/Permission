@@ -1,4 +1,4 @@
-const CACHE_NAME = 'permission-v4';
+const CACHE_NAME = 'permission-v5';
 const FONT_CACHE_NAME = 'permission-fonts-v1';
 const FONT_ORIGINS = [
   'fonts.googleapis.com',

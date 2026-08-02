@@ -1,4 +1,4 @@
-import { addDays, format, parse, startOfDay } from "date-fns";
+import { addDays, format, parse, startOfDay, differenceInCalendarDays } from "date-fns";
 import { getCustomHolidays } from "./storage";
 
 export interface Holiday {
@@ -202,7 +202,7 @@ export function calculateDates(departureDate: Date, durationDays: number) {
         seenHolidays.add("ramadan-" + year);
         const overlapStart = r.start > start ? r.start : start;
         const overlapEnd = r.end < returnDate ? r.end : returnDate;
-        const ramadanDays = Math.round((overlapEnd.getTime() - overlapStart.getTime()) / 86400000) + 1;
+        const ramadanDays = differenceInCalendarDays(overlapEnd, overlapStart) + 1;
         holidays.push({
           name: `رمضان (${ramadanDays} أيام)`,
           date: format(overlapStart, "yyyy-MM-dd"),

@@ -19,6 +19,7 @@ export function InstallLandingPage({ deferredPrompt }: Props) {
   const [progress, setProgress] = useState(0);
   const progressRef = useRef<number>(0);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const promptUsedRef = useRef(false);
 
   useEffect(() => {
     return () => {
@@ -48,7 +49,8 @@ export function InstallLandingPage({ deferredPrompt }: Props) {
       return;
     }
 
-    if (deferredPrompt) {
+    if (deferredPrompt && !promptUsedRef.current) {
+      promptUsedRef.current = true;
       try {
         await deferredPrompt.prompt();
         const { outcome } = await deferredPrompt.userChoice;

@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef } from "react";
+import { useState, useCallback, useEffect, useRef, lazy, Suspense } from "react";
 import { Calculator, SquaresFour, GearSix } from "@phosphor-icons/react";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { TabBar } from "@/components/TabBar";
@@ -6,14 +6,21 @@ import { PushPermissionGate } from "@/components/PushPermissionGate";
 import { ToastContainer } from "@/components/Toast";
 import { Onboarding } from "@/components/Onboarding";
 import { NotificationBell } from "@/components/NotificationBell";
-import { CalculatorTab } from "@/components/CalculatorTab";
-import { DashboardTab } from "@/components/DashboardTab";
-import { SettingsTab } from "@/components/SettingsTab";
 import { useSwipe } from "@/hooks/useSwipe";
 import { getHistory, type CalculationRecord } from "@/lib/storage";
 import { usePWAInstall } from "@/hooks/usePWAInstall";
 import { InstallLandingPage } from "@/components/InstallLandingPage";
 import { startReminderScheduler } from "@/lib/reminderNotifications";
+
+const CalculatorTab = lazy(() =>
+  import("@/components/CalculatorTab").then((m) => ({ default: m.CalculatorTab }))
+);
+const DashboardTab = lazy(() =>
+  import("@/components/DashboardTab").then((m) => ({ default: m.DashboardTab }))
+);
+const SettingsTab = lazy(() =>
+  import("@/components/SettingsTab").then((m) => ({ default: m.SettingsTab }))
+);
 
 const TABS = [
   { icon: Calculator, labelKey: "tab.calc" },
@@ -95,20 +102,22 @@ function App() {
         <main className="flex-1 overflow-y-auto">
           <div className="min-h-full pb-[calc(5rem+env(safe-area-inset-bottom))]">
             <ErrorBoundary>
-              <div id="tab-panel-0" role="tabpanel" aria-labelledby="tab-0" className={activeTab === 0 ? "block" : "hidden"}>
-                <CalculatorTab
-                  loadData={loadData}
-                  onDataLoaded={() => setLoadData(null)}
-                  onHistoryChange={refreshHistory}
-                  active={activeTab === 0}
-                />
-              </div>
-              <div id="tab-panel-1" role="tabpanel" aria-labelledby="tab-1" className={activeTab === 1 ? "block" : "hidden"}>
-                <DashboardTab history={history} onLoadCalculation={handleLoadCalc} onHistoryChange={refreshHistory} active={activeTab === 1} />
-              </div>
-              <div id="tab-panel-2" role="tabpanel" aria-labelledby="tab-2" className={activeTab === 2 ? "block" : "hidden"}>
-                <SettingsTab />
-              </div>
+              <Suspense fallback={<div className="flex items-center justify-center py-16 text-sm text-muted-foreground">Loading…</div>}>
+                <div id="tab-panel-0" role="tabpanel" aria-labelledby="tab-0" className={activeTab === 0 ? "block" : "hidden"}>
+                  <CalculatorTab
+                    loadData={loadData}
+                    onDataLoaded={() => setLoadData(null)}
+                    onHistoryChange={refreshHistory}
+                    active={activeTab === 0}
+                  />
+                </div>
+                <div id="tab-panel-1" role="tabpanel" aria-labelledby="tab-1" className={activeTab === 1 ? "block" : "hidden"}>
+                  <DashboardTab history={history} onLoadCalculation={handleLoadCalc} onHistoryChange={refreshHistory} active={activeTab === 1} />
+                </div>
+                <div id="tab-panel-2" role="tabpanel" aria-labelledby="tab-2" className={activeTab === 2 ? "block" : "hidden"}>
+                  <SettingsTab />
+                </div>
+              </Suspense>
             </ErrorBoundary>
           </div>
         </main>
