@@ -37,5 +37,8 @@ task.md
 /*.png
 !public/**/*.png
 
+# Supabase CLI local state
+supabase/.temp/
+
 .vercel
 .env*
