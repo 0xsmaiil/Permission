@@ -2,6 +2,8 @@
 
 An Algerian leave calculator built as a mobile-first Progressive Web App. Calculate annual leave entitlements with automatic handling of Algerian public holidays, and get reminders via push notifications.
 
+🔗 **Live app:** [https://permission-kappa.vercel.app/](https://permission-kappa.vercel.app/)
+
 ## Features
 
 - **Leave calculator** — computes annual leave based on hire date and work schedule, accounting for Algerian public holidays.
