@@ -152,7 +152,6 @@ body {
   box-decoration-break: clone;
   -webkit-box-decoration-break: clone;
   transform: rotate(-0.35deg);
-  background-color: rgba(250, 204, 21, 0.4);
   background-image: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20400%2080'%3E%3Cpath%20fill='%23FDE047'%20fill-opacity='0.88'%20d='M6%2022C30%2010%2055%2028%2080%2018C105%208%20130%2026%20160%2016C190%206%20215%2024%20245%2015C275%206%20300%2025%20330%2018C355%2012%20375%2024%20394%2016L397%2058C375%2068%20350%2052%20320%2062C290%2072%20265%2054%20235%2064C205%2074%20180%2056%20150%2066C120%2076%2095%2058%2070%2066C45%2074%2020%2062%204%2070Z'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-size: 100% 100%;
