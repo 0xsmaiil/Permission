@@ -139,7 +139,7 @@ export function Onboarding() {
       >
         <div
           className="absolute inset-0 flex transition-transform duration-300 ease-out"
-          style={{ transform: `translateX(-${step * 100}%)` }}
+          style={{ transform: `translateX(${isRTL ? "" : "-"}${step * 100}%)` }}
         >
           {ICONS.map((_, i) => (
             <StepContent key={i} step={i} />
