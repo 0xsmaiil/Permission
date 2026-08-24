@@ -511,7 +511,7 @@ function NextLeaveCard({ leaveInfo, t, dfnsLocale, onConfirmReturn, active = tru
           <div className="text-sm text-muted-foreground mt-0.5">{t("calc.work.remaining", { days: countdown })}</div>
           <div className="flex flex-wrap items-center justify-center gap-x-1.5 gap-y-0.5 text-sm text-muted-foreground mt-1.5">
             <span className="whitespace-nowrap">{t("calc.nextLeave.label")}</span>
-            <span className="whitespace-nowrap rounded-[0.2em] bg-yellow-300 px-1.5 py-0.5 text-yellow-950 font-semibold box-decoration-clone -mx-0.5">
+            <span className="marker-highlight whitespace-nowrap">
               {format(nextLeaveStart, "EEEE d MMMM", { locale: dfnsLocale })}
             </span>
           </div>

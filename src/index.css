@@ -143,4 +143,28 @@ body {
   }
 }
 
+.marker-highlight {
+  display: inline;
+  padding: 0.08em 0.28em;
+  border-radius: 0.22em 0.12em 0.26em 0.14em;
+  color: #422006;
+  font-weight: 600;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+  transform: rotate(-0.35deg);
+  background-color: rgba(250, 204, 21, 0.92);
+  background-image: repeating-linear-gradient(
+    0deg,
+    rgba(250, 204, 21, 0.4) 0px,
+    rgba(253, 224, 71, 0.9) 1px,
+    rgba(250, 204, 21, 0.55) 2px,
+    rgba(253, 224, 71, 1) 3px,
+    rgba(250, 204, 21, 0.45) 4px,
+    rgba(253, 224, 71, 0.85) 5px
+  );
+  box-shadow:
+    inset 0 0 0 1px rgba(202, 138, 4, 0.18),
+    inset 0 -2px 2px rgba(161, 98, 7, 0.25);
+}
+
 
