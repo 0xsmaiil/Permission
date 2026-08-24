@@ -36,6 +36,7 @@ interface NextLeaveSummary {
   leaveType: string;
   durationDays: number;
   actualReturnDate?: string;
+  workDays?: number;
 }
 
 type LeaveInfo =
@@ -175,15 +176,6 @@ export function CalculatorTab({ loadData, onDataLoaded, onHistoryChange, active 
     return future[0] ?? null;
   }, [refreshKey]);
 
-  const nextFutureLeave = useMemo(() => {
-    const now = new Date();
-    return (
-      getHistory()
-        .filter((h) => new Date(h.departureDate + "T00:00:00") > now)
-        .sort((a, b) => a.departureDate.localeCompare(b.departureDate))[0] ?? null
-    );
-  }, [refreshKey]);
-
   const leaveInfo = useMemo<LeaveInfo | null>(() => {
     if (!nextLeave) return null;
     const now = new Date();
@@ -321,7 +313,7 @@ export function CalculatorTab({ loadData, onDataLoaded, onHistoryChange, active 
 
       {leaveInfo && (
         <div className="mt-auto">
-          <NextLeaveCard leaveInfo={leaveInfo} t={t} dfnsLocale={dfnsLocale} onConfirmReturn={handleConfirmReturn} active={active} nextFutureLeave={nextFutureLeave} />
+          <NextLeaveCard leaveInfo={leaveInfo} t={t} dfnsLocale={dfnsLocale} onConfirmReturn={handleConfirmReturn} active={active} />
         </div>
       )}
 
@@ -463,13 +455,12 @@ function LeaveRange({ dep, ret, locale }: { dep: Date; ret: Date; locale: Return
   );
 }
 
-function NextLeaveCard({ leaveInfo, t, dfnsLocale, onConfirmReturn, active = true, nextFutureLeave }: {
+function NextLeaveCard({ leaveInfo, t, dfnsLocale, onConfirmReturn, active = true }: {
   leaveInfo: LeaveInfo;
   t: ReturnType<typeof useT>;
   dfnsLocale: ReturnType<typeof getDateFnsLocale>;
   onConfirmReturn: (id: string, workDays: number) => void;
   active?: boolean;
-  nextFutureLeave: NextLeaveSummary | null;
 }) {
   const { phase, leave } = leaveInfo;
   const dep = new Date(leave.departureDate + "T00:00:00");
@@ -510,25 +501,18 @@ function NextLeaveCard({ leaveInfo, t, dfnsLocale, onConfirmReturn, active = tru
   const maxWorkDays = Math.max(leave.durationDays, 1) * 3;
 
   if (phase === "working") {
-    const upcoming = nextFutureLeave;
+    const nextLeaveStart = new Date(leave.returnDate + "T00:00:00");
+    nextLeaveStart.setDate(nextLeaveStart.getDate() + 1 + (leave.workDays ?? 0));
     return (
       <div className="rounded-xl border border-sky-200 dark:border-sky-900 bg-sky-50/50 dark:bg-sky-950/20 p-5 flex flex-col items-center justify-center text-center gap-4">
         <Briefcase size={48} className="text-sky-500" weight="duotone" />
         <div>
           <div className="text-4xl font-extrabold tabular-nums leading-[1.3] pb-0.5">{countdown}</div>
           <div className="text-sm text-muted-foreground mt-0.5">{t("calc.work.remaining", { days: countdown })}</div>
-          {upcoming && (
-            <div dir="ltr" className="flex flex-wrap items-center justify-center gap-x-1.5 gap-y-0.5 text-sm text-muted-foreground mt-1.5">
-              <span className="whitespace-nowrap">{getLeaveTypeLabel(upcoming.leaveType, t)}<span aria-hidden="true"> ·</span></span>
-              <span className="whitespace-nowrap">
-                <LeaveRange
-                  dep={new Date(upcoming.departureDate + "T00:00:00")}
-                  ret={new Date(upcoming.returnDate + "T00:00:00")}
-                  locale={dfnsLocale}
-                />
-              </span>
-            </div>
-          )}
+          <div className="flex flex-wrap items-center justify-center gap-x-1.5 gap-y-0.5 text-sm text-muted-foreground mt-1.5">
+            <span className="whitespace-nowrap">{getLeaveTypeLabel(leave.leaveType, t)}<span aria-hidden="true"> ·</span></span>
+            <span className="whitespace-nowrap">{format(nextLeaveStart, "EEEE d MMMM", { locale: dfnsLocale })}</span>
+          </div>
         </div>
       </div>
     );
