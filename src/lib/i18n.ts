@@ -65,6 +65,7 @@ const strings: Record<Locale, Record<string, string>> = {
     "calc.work.inputLabel": "عدد أيام العمل قبل العطلة القادمة",
     "calc.work.inputError": "أدخل عدد أيام صحيح بين 1 و {max}",
     "calc.work.remaining": "متبقي {days} يوم عمل",
+    "calc.nextLeave.label": "العطلة القادمة:",
 
     "calc.type.label": "نوع العطلة",
     "calc.type.help": "اختر نوع العطلة — يظهر في سجلّك ويُصنّف إحصائياتك في لوحة التحكم.",
@@ -322,6 +323,7 @@ const strings: Record<Locale, Record<string, string>> = {
     "calc.work.inputLabel": "Jours de travail avant le prochain congé",
     "calc.work.inputError": "Entrez un nombre de jours valide entre 1 et {max}",
     "calc.work.remaining": "{days} jours de travail restants",
+    "calc.nextLeave.label": "Prochain congé :",
 
     "calc.type.label": "Type de congé",
     "calc.type.help": "Choisissez le type de congé — il figure dans votre historique et classe vos statistiques dans le tableau de bord.",
